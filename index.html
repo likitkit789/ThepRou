@@ -3,497 +3,632 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roulette Dynamic Pro (Classic Multiplier)</title>
+    <title>Roulette Master Portfolio Synergy Pro</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 15px; }
-        .container { max-width: 850px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        h1 { color: #2c3e50; text-align: center; font-size: 1.4em; margin-top: 0; margin-bottom: 15px;}
-        h3 { color: #2c3e50; text-align: center; font-size: 1.1em; margin: 5px 0 10px 0; }
+        :root {
+            --game-blue: #3498db;
+            --wallet-green: #27ae60;
+            --project-purple: #8e44ad;
+            --bg-color: #f4f7f6;
+            --box-bg: #fff;
+            --border-color: #e1e8ed;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: #333; margin: 0; padding: 10px; font-size: 0.9em;}
+        .container { max-width: 950px; margin: auto; background: var(--box-bg); padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; font-size: 1.5em; margin: 0 0 15px 0;}
+        h3 { color: #34495e; font-size: 1em; margin: 0 0 8px 0; border-bottom: 2px solid #ecf0f1; padding-bottom: 3px;}
         
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { background: #ecf0f1; color: #7f8c8d; flex: 1; padding: 12px; border-radius: 6px; cursor: pointer; text-align: center; font-weight: bold; border: 2px solid transparent; font-size: 1em; transition: 0.3s;}
-        .tab-btn:hover { background: #bdc3c7; }
-        .tab-btn.active { background: #e8f4f8; color: #2980b9; border: 2px solid #3498db; }
+        /* Menu Tabs */
+        .tabs { display: flex; gap: 6px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 12px 3px; border-radius: 8px; cursor: pointer; text-align: center; font-weight: bold; font-size: 0.9em; border: 2px solid transparent; background: #f8f9f9; color: #7f8c8d; transition: 0.3s; }
+        .tab-btn.game.active { background: #ebf5fb; color: var(--game-blue); border-color: var(--game-blue); }
+        .tab-btn.log.active { background: #e8f8f5; color: var(--wallet-green); border-color: var(--wallet-green); }
+        .tab-btn.roadmap.active { background: #f4ecf8; color: var(--project-purple); border-color: var(--project-purple); }
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .tab-content.active { display: block; }
 
-        .box { background: #ecf0f1; padding: 12px; border-radius: 6px; border-left: 4px solid #3498db; margin-bottom: 15px;}
-        .main-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .left-col, .right-col { min-width: 0; }
-        
+        .box { background: #fff; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);}
+        .main-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        
-        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
-        .input-group input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        
-        button { background: #3498db; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-size: 16px; width: 100%; font-weight: bold; }
-        button:hover { background: #2980b9; }
-        button:disabled { background: #95a5a6; cursor: not-allowed; opacity: 0.7;}
-        
-        .action-control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        .btn-action { font-size: 15px; padding: 10px; border-radius: 5px; font-weight: bold; }
-        .btn-action.win { background: #2ecc71; } .btn-action.win:hover { background: #27ae60; }
-        .btn-action.lose { background: #e74c3c; } .btn-action.lose:hover { background: #c0392b; }
-        .btn-action.undo { background: #95a5a6; } .btn-action.undo:hover { background: #7f8c8d; }
-        .btn-action.reset { background: #e67e22; } .btn-action.reset:hover { background: #d35400; }
+        .input-group label { display: block; font-weight: bold; margin-bottom: 2px; font-size: 0.8em; color: #34495e;}
+        .input-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #bdc3c7; border-radius: 6px; }
 
+        button { border: none; padding: 10px; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; font-size: 14px; transition: 0.2s;}
+        button:hover { opacity: 0.9; }
+        .btn-primary { background: var(--game-blue); width: 100%;}
+
+        /* Controls & Numpad */
+        .action-control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px;}
+        .btn-action.win { background: #2ecc71; } .btn-action.lose { background: #e74c3c; } 
+        .btn-action.undo { background: #95a5a6; } .btn-action.reset { background: #e67e22; }
         .numpad-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-        .btn-num { font-size: 18px; padding: 2px 0; height: 35px; font-weight: bold; border-radius: 4px; border: 1px solid #2c3e50; display: flex; align-items: center; justify-content: center; }
+        .btn-num { font-size: 16px; padding: 4px 0; height: 38px; border-radius: 4px; border: 1px solid #2c3e50; font-weight: bold; }
         .btn-num.black { background-color: #2c3e50; color: white; }
-        .btn-num.black:hover { background-color: #1a252f; }
         .btn-num.red { background-color: #e74c3c; color: white; border-color: #c0392b;}
-        .btn-num.red:hover { background-color: #c0392b; }
-        .btn-num.zero { background-color: #27ae60; color: white; grid-column: span 3; height: 40px; font-size: 20px; border-color: #219150;}
-        .btn-num.zero:hover { background-color: #219150; }
+        .btn-num.zero { background-color: #27ae60; color: white; grid-column: span 3; height: 45px; font-size: 22px; border-color: #219150;}
+        .compact-history { background: #f8f9f9; padding: 10px; border-radius: 6px; margin-bottom: 6px; font-size: 1.1em; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+        .num-badge { inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 4px; color: white; font-weight: bold; margin-right: 4px; font-size: 0.85em; border: 1px solid #333;}
+        .num-badge.red { background: #e74c3c; } .num-badge.black { background: #2c3e50; } .num-badge.zero { background: #27ae60; }
 
-        .compact-history { background: #fff; border: 1px solid #ddd; padding: 8px; border-radius: 4px; margin-bottom: 8px; font-size: 1.2em; white-space: nowrap; overflow-x: auto; scroll-behavior: smooth; width: 100%; box-sizing: border-box; scrollbar-width: none; }
-        .compact-history::-webkit-scrollbar { display: none; }
+        /* Wallet Summary Boxes */
+        .wallet-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;}
+        .wallet-card { padding: 15px 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; box-shadow: 0 3px 6px rgba(0,0,0,0.1);}
+        .card-win { background: var(--wallet-green); }
+        .card-withdraw { background: #e67e22; } 
+        .card-net { background: var(--project-purple); }
+        .card-title { font-size: 0.75em; opacity: 0.9; margin-bottom: 5px; display: block; text-transform: uppercase;}
+        .wallet-card span:not(.card-title) { font-size: 1.3em; }
 
-        .num-badge { display: inline-block; width: 25px; height: 25px; line-height: 25px; text-align: center; border-radius: 4px; color: white; font-weight: bold; margin-right: 4px; font-size: 0.85em; border: 1px solid #333;}
-        .num-badge.red { background: #e74c3c; border-color: #c0392b; }
-        .num-badge.black { background: #2c3e50; border-color: #1a252f; }
-        .num-badge.zero { background: #27ae60; border-color: #219150; }
+        /* Integrated Roadmap Progress Bar */
+        .roadmap-box { background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; position: relative;}
+        .progress-container { width: 100%; background: rgba(255,255,255,0.2); border-radius: 12px; margin: 10px 0; overflow: hidden; position: relative; height: 24px; border: 1px solid rgba(0,0,0,0.1); }
+        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #f1c40f, #f39c12); transition: width 0.6s ease; }
+        .progress-text { position: absolute; width: 100%; text-align: center; line-height: 24px; font-size: 13px; font-weight: bold; color: #2c3e50; top: 0; left: 0;}
 
+        /* Tables & Alerts */
         table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 0.85em; background: white;}
-        th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
-        th { background-color: #34495e; color: white; }
+        th, td { border: 1px solid #ecf0f1; padding: 8px 4px; text-align: center; }
+        th { background-color: #34495e; color: white; position: sticky; top: 0; }
+        .table-responsive { overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #ecf0f1; max-height: 350px; overflow-y: auto;}
         
-        .setup-preview-box { background: #fff; border: 1px dashed #3498db; padding: 12px; border-radius: 6px; margin-bottom: 15px; }
+        .alert-box { padding: 15px; border-radius: 8px; margin-bottom: 12px; font-weight: bold; text-align: center; display: none; font-size: 1.1em; border: 2px solid transparent;}
+        .alert-success { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
 
-        .highlight-dozen { background-color: #f1c40f; color: #c0392b; padding: 4px 10px; border-radius: 4px; font-size: 1.3em; font-weight: bold; display: inline-block; margin: 2px; border: 1px solid #e67e22;}
-        .highlight-col { background-color: #3498db; color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 1.3em; font-weight: bold; display: inline-block; margin: 2px; border: 1px solid #2980b9;}
+        .status-done { color: var(--wallet-green); font-weight: bold; }
+        .status-doing { color: #e67e22; font-weight: bold; }
+        .status-wait { color: #bdc3c7; }
+        
+        .highlight-dozen { background-color: #f1c40f; color: #c0392b; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .highlight-col { background-color: #3498db; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
 
-        .status-board { background: #34495e; color: white; padding: 12px; border-radius: 6px; text-align: center; margin-bottom: 15px; font-size: 1em; display: flex; justify-content: space-around;}
-        .alert-box { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; text-align: center; display: none; font-size: 1em; }
-        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .btn-auto-save { background: #8e44ad; color: white; margin-top: 10px; font-size: 1.1em; padding: 12px;}
-        .btn-auto-save:hover { background: #732d91; }
-
-        .table-responsive { overflow-x: auto; background: white; border-radius: 6px; border: 1px solid #ccc;}
-        .log-table th { background: #2c3e50; color: white; }
-        .btn-delete { background: #e74c3c; color: white; padding: 5px 8px; font-size: 12px; width: auto; border-radius: 4px;}
-        .text-plus { color: #27ae60; font-weight: bold; }
-        .text-minus { color: #e74c3c; font-weight: bold; }
-
-        @media (max-width: 700px) { .main-layout { grid-template-columns: 1fr; } .tabs { flex-direction: column; gap: 5px;} }
+        @media (max-width: 600px) { .main-layout { grid-template-columns: 1fr; } .wallet-summary { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🎯 Roulette Dynamic Pro</h1>
+    <h1>🎯 Roulette Master Portfolio Synergy Pro</h1>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('game')">🎮 ระบบเล่นรูเล็ต</button>
-        <button class="tab-btn" onclick="switchTab('log')">📔 บันทึกการลงทุนรายวัน</button>
+        <div class="tab-btn game active" onclick="switchTab('game')">🎮 แท็บ 1: หน้ากระดานเล่นเกม</div>
+        <div class="tab-btn log" onclick="switchTab('log')">💼 แท็บ 2: พอร์ตโฟลิโอ</div>
+        <div class="tab-btn roadmap" onclick="switchTab('roadmap')">🚀 แท็บ 3: แผนงาน Roadmap</div>
     </div>
 
     <div id="tab-game" class="tab-content active">
-        <div class="box" id="setupSection">
-            <h3>⚙️ ตั้งค่าทุน (บาท)</h3>
+        <div class="box" id="setupSection" style="border-left: 4px solid var(--game-blue);">
+            <h3>⚙️ ตั้งค่าเงินทุนเริ่มต้น</h3>
             <div class="setup-grid">
-                <div class="input-group"><label>ทุนตั้งต้น:</label><input type="number" id="capital" value="5000" oninput="updateSetupPreview()"></div>
-                <div class="input-group"><label>กำไรที่ต้องการต่อตา:</label><input type="number" id="baseUnit" value="100" oninput="updateSetupPreview()"></div>
-                <div class="input-group"><label>เป้ากำไร (%):</label><input type="number" id="targetPercent" value="20" oninput="updateSetupPreview()"></div>
+                <div class="input-group"><label>ทุนหน้างาน (บาท):</label><input type="number" id="capital" value="5000" oninput="handleCapitalChange()"></div>
+                <div class="input-group"><label>กำไรเป้าหมาย (%):</label><input type="number" id="targetPercent" value="15" oninput="updateSetupPreview()"></div>
+                <div class="input-group"><label>กำไรต่อตา (บาท):</label><input type="number" id="baseUnit" value="100" oninput="updateSetupPreview()"></div>
                 <div class="input-group"><label>ตัดขาดทุน (%):</label><input type="number" id="stopLossPercent" value="50" oninput="updateSetupPreview()"></div>
             </div>
-            <div style="font-size: 0.8em; color: #7f8c8d; margin-top: -5px; margin-bottom: 10px; text-align: center;">
-                *ระบบคำนวณเดินเงินแบบทบไม้ (x3) สูงสุด 6 ไม้ ตัวเลขกลมๆ เรียบง่าย
-            </div>
-
-            <div class="setup-preview-box">
-                <div style="display:flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95em;">
-                    <span>🎯 เป้าหมายเลิก: <b id="prevTarget" style="color:#27ae60;">0</b> บ.</span>
-                    <span>🛑 จุดตัดขาดทุน: <b id="prevStop" style="color:#c0392b;">0</b> บ.</span>
+            
+            <div style="background: #f8f9f9; border: 1px dashed #bdc3c7; padding: 10px; border-radius: 6px; margin-bottom: 12px;">
+                <div style="display:flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em;">
+                    <span>🎯 เป้าเลิก: <b id="prevTarget" style="color:#27ae60;">0</b> บ.</span>
+                    <span>🛑 ขาดทุน: <b id="prevStop" style="color:#c0392b;">0</b> บ.</span>
                 </div>
-                <table id="previewMartingaleTable">
-                    </table>
+                <table id="previewMartingaleTable"></table>
             </div>
-
-            <button onclick="startGame()" id="startBtn">▶️ เริ่มระบบหน้างาน</button>
+            <button class="btn-primary" onclick="startGame()">▶️ เปิดหน้ากระดานลุยสูตร</button>
         </div>
 
         <div id="alertBox" class="alert-box"></div>
 
         <div class="main-layout" id="gameplaySection" style="display:none;">
             <div class="left-col">
-                <div class="box" style="border-left-color: #f1c40f;">
-                    <h3>คำสั่งระบบ (ไม้ที่ <span id="currentStepDisplay">1</span>)</h3>
-                    <div id="systemCommand" style="font-size: 1.1em; font-weight: bold; color: #f39c12; text-align: center; padding: 15px 0;">⏸️ รอเก็บสถิติ...</div>
-                    <div id="betDetail" style="text-align: center; font-size: 0.9em; color: #555;"></div>
+                <div class="box" style="border-left: 4px solid #f1c40f;">
+                    <h3>🤖 คำสั่งระบบ (ไม้ที่ <span id="currentStepDisplay">1</span>)</h3>
+                    <div id="systemCommand" style="font-size: 1.2em; font-weight: bold; color: #f39c12; text-align: center; padding: 10px 0;">⏸️ รอเก็บสถิติ...</div>
+                    <div id="betDetail" style="text-align: center; font-size: 0.85em; color: #555;"></div>
                 </div>
-
-                <div class="box" style="border-left-color: #2c3e50; background: #dfe6e9;">
-                    <h3>⏺️ กระดานตัวเลข (จิ้มสถิติที่ออก)</h3>
-                    <div class="numpad-container">
-                        <button class="btn-num zero" onclick="processSpin(0)">0</button>
-                        <script>
-                            const redNums = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-                            let numpad = document.querySelector('.numpad-container');
-                            for(let i=1; i<=36; i++){
-                                let colorClass = redNums.includes(i) ? 'red' : 'black';
-                                numpad.innerHTML += `<button class="btn-num ${colorClass}" onclick="processSpin(${i})">${i}</button>`;
-                            }
-                        </script>
-                    </div>
+                <div class="box">
+                    <div class="numpad-container" id="numpadArea"></div>
                 </div>
             </div>
-
             <div class="right-col">
-                <div class="status-board" id="dashboard">
-                    <div>ทุน: <span id="currentBankroll">0</span> บ.</div>
-                    <div>กำไร: <span id="netProfit">0</span> บ.</div>
+                <div class="status-board" style="background: #34495e; color: white; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around;">
+                    <div>ทุนสะสมรอบนี้: <span id="currentBankroll">0</span></div>
+                    <div>กำไรรอบนี้: <span id="netProfit" style="font-weight:bold;">0</span></div>
                 </div>
-
                 <div class="box">
-                    <h3>📊 สถิติแบบย่อ</h3>
-                    <div style="font-size: 0.8em; color: #7f8c8d; margin-bottom: 2px;">ประวัติตัวเลขล่าสุด:</div>
+                    <div style="font-size: 0.8em; color:#7f8c8d;">ประวัติตัวเลข (ขวาใหม่สุด):</div>
                     <div class="compact-history" id="numHistoryBoard">รอผล...</div>
-                    
-                    <div style="font-size: 0.8em; color: #7f8c8d; margin-bottom: 2px; margin-top: 5px;">แนวโน้มสูตร (✔️/❌ อัตโนมัติ):</div>
-                    <div class="compact-history" id="streakBoard">รอการเช็คสถิติ...</div>
+                    <div style="font-size: 0.8em; color:#7f8c8d; margin-top:5px;">แนวโน้มสูตร:</div>
+                    <div id="streakBoard" style="font-size: 1.1em; letter-spacing: 2px;">รอสถิติ...</div>
                 </div>
-
-                <div class="box" style="border-left-color: #9b59b6;">
-                    <div style="font-size: 0.8em; color: #7f8c8d; margin-bottom: 5px; text-align: center;">👇 ควบคุมเงินทุน (กดเมื่อลงเงินจริงเท่านั้น) 👇</div>
+                <div class="box" style="border-left: 4px solid var(--project-purple);">
                     <div class="action-control-grid">
-                        <button class="btn-action win" onclick="triggerManualResult('WIN')">✔️ WIN</button>
-                        <button class="btn-action lose" onclick="triggerManualResult('LOSE')">❌ LOSE</button>
-                        <button class="btn-action undo" onclick="triggerUndo()">↩️ UNDO</button>
-                        <button class="btn-action reset" onclick="resetStats()">🔄 RESET</button>
+                        <button class="btn-action win" onclick="triggerManualResult('WIN')">WIN</button>
+                        <button class="btn-action lose" onclick="triggerManualResult('LOSE')">LOSE</button>
+                        <button class="btn-action undo" onclick="triggerUndo()">UNDO</button>
+                        <button class="btn-action reset" onclick="resetStats()">RESET</button>
                     </div>
-                </div>
-
-                <div class="box">
-                    <h3 style="margin-top:0; margin-bottom: 5px;">ตารางเดินเงินของคุณ</h3>
-                    <table id="martingaleTable">
-                        </table>
+                    <h3 style="margin: 10px 0 5px 0; font-size: 0.85em;">ตารางประกอบการเดินเงิน</h3>
+                    <table id="martingaleTable"></table>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="tab-log" class="tab-content">
-        <div class="box" style="border-left-color: #27ae60;">
-            <h3>📝 เพิ่มบันทึกประจำวัน</h3>
-            <div class="setup-grid">
-                <div class="input-group"><label>วันที่:</label><input type="date" id="logDate" oninput="saveDraft()"></div>
-                <div class="input-group"><label>เงินทุน (บาท):</label><input type="number" id="logCap" oninput="saveDraft()"></div>
-                <div class="input-group"><label>เป้ากำไรที่ตั้งไว้ (บาท):</label><input type="number" id="logTarget" oninput="saveDraft()"></div>
-                <div class="input-group"><label>ได้ / เสีย สุทธิ (บาท):</label><input type="number" id="logResult" oninput="saveDraft()"></div>
-                <div class="input-group" style="grid-column: 1/-1;"><label>ยอดถอนเข้าบัญชีจริง (บาท):</label><input type="number" id="logWithdraw" oninput="saveDraft()"></div>
+        <div class="wallet-summary">
+            <div class="wallet-card card-win">
+                <span class="card-title">กำไรจากเกม</span>
+                <span id="sumWin">0</span>
             </div>
-            <button class="btn-save" style="background:#27ae60; color:white; border:none; padding:10px; border-radius:4px; font-weight:bold; width:100%;" onclick="saveLog()">💾 บันทึกลงสมุด</button>
+            <div class="wallet-card card-withdraw">
+                <span class="card-title">ยอดถอนออก</span>
+                <span id="sumWd">0</span>
+            </div>
+            <div class="wallet-card card-net">
+                <span class="card-title">เงินสุทธิในพอร์ต</span>
+                <span id="sumNet">0</span>
+            </div>
         </div>
 
-        <div class="box" style="border-left-color: #8e44ad; padding: 0;">
-            <h3 style="padding: 12px 0 0 0;">📓 ประวัติการลงทุน (Trading Log)</h3>
+        <div class="box" style="border-left-color: #e67e22; padding: 12px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="number" id="withdrawAmount" placeholder="ยอดเงินถอน..." style="width: 140px; padding: 10px; border: 1px solid #bdc3c7; border-radius: 6px; font-weight: bold;">
+                <button style="background:#e67e22; flex: 1; padding: 10px;" onclick="submitWithdraw()">💸 ทำรายการถอน</button>
+            </div>
+        </div>
+
+        <div class="box" style="padding: 0; border-left-color: var(--wallet-green);">
+            <h3 style="padding: 10px; margin: 0;">📜 บันทึกความเคลื่อนไหวพอร์ต</h3>
             <div class="table-responsive">
-                <table class="log-table" id="logTable">
-                    <thead><tr><th>วันที่</th><th>ทุน</th><th>เป้ากำไร</th><th>ได้/เสีย</th><th>ยอดถอน</th><th>ลบ</th></tr></thead>
-                    <tbody id="logTableBody"></tbody>
+                <table id="walletTable">
+                    <thead><tr><th>วัน/เดือน/ปี (เวลาเครื่อง)</th><th>รายการ</th><th>จำนวนเงิน</th><th>จัดการ</th></tr></thead>
+                    <tbody id="walletTableBody"></tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-roadmap" class="tab-content">
+        <div id="roadmapActive" style="display:none;">
+            <div class="roadmap-box">
+                <div style="display:flex; justify-content: space-between; font-size: 0.9em; margin-bottom: 5px;">
+                    <b>🚀 ความคืบหน้าแผนงาน Roadmap รายวัน</b>
+                    <span id="pjRemainText">เหลืออีก 0 บ.</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="pjProgressBar"></div>
+                    <div class="progress-text" id="pjProgressText">0%</div>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; font-size: 0.85em; opacity: 0.95; background: rgba(0,0,0,0.15); padding: 8px; border-radius: 6px; gap: 5px; margin-top: 5px;">
+                    <div>🌱 ทุนเริ่ม: <b id="pjStartCap">0</b></div>
+                    <div>🎯 เป้าหมายกำไร: <b id="pjTargetCap">0</b></div>
+                    <div>💰 ทำได้แล้ว: <b id="pjCurrentProgress">0</b></div>
+                </div>
+                <div style="font-size: 0.8em; opacity: 0.8; text-align: left; margin-top: 5px;" id="pjDateRangeDisplay">
+                    ระยะเวลาโปรเจค: - ถึง - 
+                </div>
+            </div>
+        </div>
+
+        <div class="box" id="projectSetupBox" style="border-left-color: var(--project-purple);">
+            <h3>⚙️ ตั้งค่าสร้างตารางเป้าหมาย Roadmap รายวัน</h3>
+            <div class="setup-grid">
+                <div class="input-group"><label>ทุนเริ่มต้นโปรเจค (บาท):</label><input type="number" id="setupPjCap" value="5000"></div>
+                <div class="input-group"><label>เป้าหมายที่ต้องการพิชิต (บาท):</label><input type="number" id="setupPjTarget" value="50000"></div>
+                <div class="input-group"><label>วันที่เริ่มทำเป้าหมาย:</label><input type="date" id="setupPjStartDate"></div>
+                <div class="input-group"><label>วันที่สิ้นสุดโปรเจค:</label><input type="date" id="setupPjEndDate"></div>
+                <div class="input-group" style="grid-column: span 2;"><label>อัตรากำไรทบต้นต่อวัน (%):</label><input type="number" id="setupPjRate" value="15"></div>
+            </div>
+            <button style="background: var(--project-purple); width: 100%;" onclick="startProject()">🚀 แสดงตารางเป้าหมายรายวัน</button>
+        </div>
+
+        <div id="roadmapTableBox" style="display:none; margin-bottom:12px;">
+            <div class="box" style="padding: 0; border-left-color: var(--project-purple);">
+                <h3 style="padding: 10px; margin: 0;">📅 ตารางเป้าหมายสะสมรายวัน (ทบต้นรวมทุนไปทุกวันตามระยะเวลาที่เลือก)</h3>
+                <div class="table-responsive">
+                    <table class="roadmap-table">
+                        <thead><tr><th>วัน / วันที่ระบุ</th><th>กำไรที่ต้องทำ</th><th>พอร์ตต้องจบที่ยอด</th><th>สถานะ</th></tr></thead>
+                        <tbody id="pjDailyTableBody"></tbody>
+                    </table>
+                </div>
+                <button style="background: #e74c3c; width: 100%; border-radius: 0 0 8px 8px; font-size: 12px; padding: 8px;" onclick="cancelProject()">🛑 ล้างข้อมูลแผนโปรเจค</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // ================= โลจิกทั่วไป =================
-    function formatNumber(num) {
-        return Number(num).toLocaleString('th-TH');
+    // ================= DATA UTILS =================
+    function formatNum(num) { return Number(num).toLocaleString('th-TH'); }
+    function getNow() { 
+        let d = new Date();
+        let ds = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543}`;
+        let ts = d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+        return { ds, ts };
+    }
+    function formatDisplayISO(dateStr) {
+        if(!dateStr) return "-";
+        let parts = dateStr.split('-');
+        if(parts.length !== 3) return dateStr;
+        return `${parts[2]}/${parts[1]}/${parseInt(parts[0])+543}`;
     }
 
+    // Tab switcher
     function switchTab(tabName) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        event.target.classList.add('active');
+        document.querySelector('.tab-btn.' + tabName).classList.add('active');
         document.getElementById('tab-' + tabName).classList.add('active');
+        renderWallet();
+        renderProject();
     }
 
-    // ================= โลจิก Trading Log =================
-    let logs = JSON.parse(localStorage.getItem('rouletteLogData')) || [];
-    function saveDraft() {
-        const draft = {
-            date: document.getElementById('logDate').value, cap: document.getElementById('logCap').value,
-            target: document.getElementById('logTarget').value, result: document.getElementById('logResult').value,
-            withdraw: document.getElementById('logWithdraw').value
-        };
-        localStorage.setItem('rouletteDraftInput', JSON.stringify(draft));
-    }
-    function loadDraft() {
-        const draft = JSON.parse(localStorage.getItem('rouletteDraftInput'));
-        if(draft) {
-            if(draft.date) document.getElementById('logDate').value = draft.date;
-            if(draft.cap) document.getElementById('logCap').value = draft.cap;
-            if(draft.target) document.getElementById('logTarget').value = draft.target;
-            if(draft.result) document.getElementById('logResult').value = draft.result;
-            if(draft.withdraw) document.getElementById('logWithdraw').value = draft.withdraw;
-        } else { document.getElementById('logDate').valueAsDate = new Date(); }
-        renderLogs();
+    function handleCapitalChange() {
+        updateSetupPreview();
+        renderWallet();
     }
 
-    function saveLog() {
-        let date = document.getElementById('logDate').value, cap = parseFloat(document.getElementById('logCap').value) || 0;
-        let target = parseFloat(document.getElementById('logTarget').value) || 0, result = parseFloat(document.getElementById('logResult').value) || 0;
-        let withdraw = parseFloat(document.getElementById('logWithdraw').value) || 0;
-        if(!date || cap === 0) { alert("กรุณากรอกวันที่และเงินทุน"); return; }
-        logs.unshift({ id: Date.now(), date, cap, target, result, withdraw }); 
-        localStorage.setItem('rouletteLogData', JSON.stringify(logs));
-        renderLogs();
+    // ================= TAB 2: WALLET ENGINE =================
+    let walletLogs = JSON.parse(localStorage.getItem('roulette_vault_v15')) || [];
+    let totalNetBalance = 0; 
+    let globalSumWin = 0; 
+
+    function submitWalletAction(type, autoAmount = null) {
+        let amount = autoAmount !== null ? autoAmount : 0;
+        if(amount === 0) return;
+        let { ds, ts } = getNow();
+        walletLogs.unshift({ id: Date.now(), date: ds, time: ts, type, amount: Math.abs(amount), isNegative: amount < 0 });
+        localStorage.setItem('roulette_vault_v15', JSON.stringify(walletLogs));
+        renderWallet();
     }
-    function deleteLog(id) {
-        if(confirm("ลบบันทึกนี้ใช่หรือไม่?")) { logs = logs.filter(log => log.id !== id); localStorage.setItem('rouletteLogData', JSON.stringify(logs)); renderLogs(); }
+
+    function submitWithdraw() {
+        let amt = parseFloat(document.getElementById('withdrawAmount').value);
+        if(!amt || isNaN(amt) || amt <= 0) return;
+        let { ds, ts } = getNow();
+        walletLogs.unshift({ id: Date.now(), date: ds, time: ts, type: 'WITHDRAW', amount: amt });
+        localStorage.setItem('roulette_vault_v15', JSON.stringify(walletLogs));
+        document.getElementById('withdrawAmount').value = '';
+        renderWallet();
     }
-    function renderLogs() {
-        let tbody = document.getElementById('logTableBody'); tbody.innerHTML = '';
-        if(logs.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="padding: 20px; color: #7f8c8d; text-align:center;">ยังไม่มีบันทึก</td></tr>'; return; }
-        logs.forEach(log => {
-            let d = new Date(log.date), dateStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
-            let rClass = log.result >= 0 ? 'text-plus' : 'text-minus', rSign = log.result > 0 ? '+' : '';
-            tbody.innerHTML += `<tr><td>${dateStr}</td><td>${formatNumber(log.cap)}</td><td>${formatNumber(log.target)}</td><td class="${rClass}">${rSign}${formatNumber(log.result)}</td><td style="color:#2980b9; font-weight:bold;">${log.withdraw > 0 ? formatNumber(log.withdraw) : '-'}</td><td><button class="btn-delete" onclick="deleteLog(${log.id})">🗑️</button></td></tr>`;
+
+    function renderWallet() {
+        let tbody = document.getElementById('walletTableBody'); 
+        if(tbody) tbody.innerHTML = '';
+        let baseCap = parseFloat(document.getElementById('capital').value) || 0;
+        let sWin = 0, sWd = 0;
+        
+        walletLogs.forEach(log => {
+            if(log.type === 'PLAY_WIN') {
+                if(log.isNegative) sWin -= log.amount; else sWin += log.amount;
+            }
+            else if(log.type === 'WITHDRAW') sWd += log.amount;
+
+            if(tbody) {
+                let label = log.type === 'PLAY_WIN' ? 'ผลลัพธ์เกม' : 'ถอนเงิน';
+                let color = log.type === 'PLAY_WIN' ? (log.isNegative ? '#e74c3c' : '#27ae60') : '#e67e22';
+                let sign = log.type === 'WITHDRAW' ? '-' : (log.isNegative ? '-' : '+');
+                
+                tbody.innerHTML += `<tr>
+                    <td>${log.date} <span style="color:#7f8c8d; font-size:0.85em; font-weight:bold;">(${log.time})</span></td>
+                    <td style="color:${color}; font-weight:bold;">${label}</td>
+                    <td style="font-weight:bold;">${sign}${formatNum(log.amount)}</td>
+                    <td><button onclick="deleteWalletItem(${log.id})" style="background:none; border:none; color:#e74c3c; cursor:pointer;">🗑️</button></td>
+                </tr>`;
+            }
         });
+        
+        if(tbody && walletLogs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="padding:15px; color:#7f8c8d; text-align:center;">ยังไม่มีประวัติทำรายการพอร์ต</td></tr>';
+        }
+
+        totalNetBalance = baseCap + sWin - sWd;
+        globalSumWin = sWin; 
+
+        document.getElementById('sumWin').innerText = formatNum(sWin);
+        document.getElementById('sumWd').innerText = formatNum(sWd);
+        document.getElementById('sumNet').innerText = formatNum(totalNetBalance);
     }
 
-    // ================= โลจิกเกม & คำนวณ =================
-    let capital, baseUnit, targetAmount, stopLossAmount;
-    let bankroll, netProfit = 0;
-    let step = 1, active = false;
-    let historyNums = [], currentPlayMode = 'DOZEN', betStreak = [];
-    let stateHistory = [];
-    let martingalePlan = [];
+    function deleteWalletItem(id) { 
+        if(confirm("ลบรายการประวัตินี้?")) { 
+            walletLogs = walletLogs.filter(l => l.id !== id); 
+            localStorage.setItem('roulette_vault_v15', JSON.stringify(walletLogs)); 
+            renderWallet(); 
+            renderProject();
+        } 
+    }
 
-    // สมการเดินเงินคูณ 3 แบบมาตรฐาน
+    function autoSaveToWalletFromGame(amt) {
+        submitWalletAction('PLAY_WIN', amt);
+        document.getElementById('setupSection').style.display = 'block';
+        document.getElementById('gameplaySection').style.display = 'none';
+        document.getElementById('alertBox').style.display = 'none';
+        document.querySelectorAll('#gameplaySection button').forEach(b => b.disabled = false);
+        renderWallet();
+        switchTab('roadmap'); 
+    }
+
+    // ================= TAB 3: ROADMAP ENGINE (แก้ไขช่วงเวลาเริ่มต้นและสิ้นสุดได้) =================
+    let project = JSON.parse(localStorage.getItem('roulette_roadmap_v15_date')) || null;
+    
+    function startProject() {
+        let cap = parseFloat(document.getElementById('setupPjCap').value);
+        let target = parseFloat(document.getElementById('setupPjTarget').value);
+        let rate = parseFloat(document.getElementById('setupPjRate').value) / 100;
+        let startDtStr = document.getElementById('setupPjStartDate').value;
+        let endDtStr = document.getElementById('setupPjEndDate').value;
+        
+        if(!cap || !target || isNaN(rate) || !startDtStr || !endDtStr) { alert("กรุณากรอกข้อมูลตั้งค่าและช่วงเวลาให้ครบถ้วนครับ"); return; }
+        
+        // คำนวณหาจำนวนวันระหว่างวันที่เลือก
+        let d1 = new Date(startDtStr);
+        let d2 = new Date(endDtStr);
+        let timeDiff = d2.getTime() - d1.getTime();
+        let daysComputed = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // รวมวันเริ่มแรกด้วย
+        
+        if(daysComputed <= 0) { alert("วันที่สิ้นสุดโปรเจค ต้องอยู่หลังวันที่เริ่มต้นครับ"); return; }
+
+        project = { cap, target, rate, days: daysComputed, startDateISO: startDtStr, endDateISO: endDtStr };
+        localStorage.setItem('roulette_roadmap_v15_date', JSON.stringify(project));
+        renderProject();
+    }
+    
+    function cancelProject() { 
+        if(confirm("ล้างข้อมูลโปรเจคแผนทบต้นทิ้งทั้งหมดใช่หรือไม่?")) { 
+            project = null; 
+            localStorage.removeItem('roulette_roadmap_v15_date'); 
+            renderProject(); 
+        } 
+    }
+
+    function renderProject() {
+        let setupBox = document.getElementById('projectSetupBox');
+        let activeBox = document.getElementById('roadmapActive');
+        let tableBox = document.getElementById('roadmapTableBox');
+        
+        if(!project) {
+            setupBox.style.display = 'block'; activeBox.style.display = 'none'; tableBox.style.display = 'none';
+            // เซ็ต default วันนี้ลงช่องฟอร์ม
+            let todayISO = new Date().toISOString().split('T')[0];
+            document.getElementById('setupPjStartDate').value = todayISO;
+            document.getElementById('setupPjEndDate').value = todayISO;
+        } else {
+            setupBox.style.display = 'none'; activeBox.style.display = 'block'; tableBox.style.display = 'block';
+            
+            let totalGainNeeded = project.target - project.cap;
+            let currentGain = globalSumWin; 
+            if(totalGainNeeded <= 0) totalGainNeeded = 1; 
+            
+            let percent = (currentGain / totalGainNeeded) * 100;
+            percent = Math.min(100, Math.max(0, percent)); 
+
+            document.getElementById('pjStartCap').innerText = formatNum(project.cap) + " บ.";
+            document.getElementById('pjTargetCap').innerText = formatNum(project.target) + " บ.";
+            document.getElementById('pjCurrentProgress').innerText = formatNum(globalSumWin) + " บ.";
+            document.getElementById('pjDateRangeDisplay').innerHTML = `📅 <b>ระยะเวลา:</b> ${formatDisplayISO(project.startDateISO)} ถึง ${formatDisplayISO(project.endDateISO)} (รวม <b>${project.days} วัน</b>)`;
+            
+            document.getElementById('pjProgressBar').style.width = percent + '%';
+            document.getElementById('pjProgressText').innerText = percent.toFixed(1) + '%';
+            
+            let remain = totalGainNeeded - globalSumWin;
+            document.getElementById('pjRemainText').innerText = remain <= 0 ? "🎯 คุณบรรลุเป้าหมายแผน Roadmap สำเร็จ!" : `เหลือเป้าหมายกำไรที่ต้องเก็บอีก ${formatNum(Math.ceil(remain))} บ.`;
+
+            // เจนตารางทบต้นรายวันสะสมรวมทุนล่วงหน้าตามวันที่เลือก
+            let tbody = document.getElementById('pjDailyTableBody'); 
+            if(tbody) {
+                tbody.innerHTML = ''; 
+                let currentDayTargetBalance = project.cap;
+                let baseDate = new Date(project.startDateISO);
+
+                for(let i=1; i<=project.days; i++) {
+                    let dailyProfitNeeded = currentDayTargetBalance * project.rate; 
+                    currentDayTargetBalance += dailyProfitNeeded; 
+
+                    // คำนวณขยับวันที่ทีละวันในตารางเพื่อความแม่นยำรายวัน
+                    let nextD = new Date(baseDate);
+                    nextD.setDate(baseDate.getDate() + (i - 1));
+                    let loopDayStr = `${nextD.getDate().toString().padStart(2,'0')}/${(nextD.getMonth()+1).toString().padStart(2,'0')}/${nextD.getFullYear()+543}`;
+
+                    let statusHTML = ""; let rowStyle = "";
+                    let virtualBalance = project.cap + globalSumWin;
+
+                    if (virtualBalance >= currentDayTargetBalance) {
+                        statusHTML = '<span class="status-done">✔️ ผ่านแล้ว</span>';
+                    } else if (virtualBalance >= (currentDayTargetBalance - dailyProfitNeeded)) {
+                        statusHTML = '<span class="status-doing">🔥 ลุยอยู่</span>';
+                        rowStyle = "background: #fdf2e9;"; 
+                    } else {
+                        statusHTML = '<span class="status-wait">⏳ รอเป้า</span>';
+                    }
+
+                    tbody.innerHTML += `<tr style="${rowStyle}">
+                        <td><b>วันี่ ${i}</b><br><small style="color:#7f8c8d;">(${loopDayStr})</small></td>
+                        <td style="color:#8e44ad; font-weight:bold;">+${formatNum(Math.ceil(dailyProfitNeeded))}</td>
+                        <td style="font-weight:bold;">${formatNum(Math.ceil(currentDayTargetBalance))}</td>
+                        <td>${statusHTML}</td>
+                    </tr>`;
+                }
+            }
+        }
+    }
+
+    // ================= TAB 1: OPERATIONAL ROULETTE ENGINE =================
+    const redNumsArray = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+    let numpadArea = document.getElementById('numpadArea');
+    numpadArea.innerHTML = `<button class="btn-num zero" onclick="processSpin(0)">0</button>`;
+    for(let i=1; i<=36; i++) {
+        let c = redNumsArray.includes(i) ? 'red' : 'black';
+        numpadArea.innerHTML += `<button class="btn-num ${c}" onclick="processSpin(${i})">${i}</button>`;
+    }
+
+    let gameCap, bankroll, step = 1, currentMode = 'DOZEN', historyArr = [], streakArr = [], stateHist = [], isActive = false, martingalePlan = [];
+
     function updateSetupPreview() {
         let cap = parseFloat(document.getElementById('capital').value) || 0;
         let targetUnit = parseFloat(document.getElementById('baseUnit').value) || 0;
         let tpPercent = parseFloat(document.getElementById('targetPercent').value) || 0;
         let slPercent = parseFloat(document.getElementById('stopLossPercent').value) || 0;
 
-        let tAmt = cap + (cap * tpPercent / 100);
-        let sAmt = cap - (cap * slPercent / 100);
-        
-        document.getElementById('prevTarget').innerText = formatNumber(tAmt);
-        document.getElementById('prevStop').innerText = formatNumber(sAmt);
+        document.getElementById('prevTarget').innerText = formatNum(cap + (cap * tpPercent / 100));
+        document.getElementById('prevStop').innerText = formatNum(cap - (cap * slPercent / 100));
 
-        martingalePlan = [];
-        let accCost = 0;
+        martingalePlan = []; let accCost = 0;
         let tableHTML = "<tr><th>ไม้</th><th>ลงโซนละ</th><th>ทุนตานี้</th><th>ทุนสะสม</th></tr>";
 
-        // จำกัด 6 ไม้ มาตรฐาน
         for(let i=1; i<=6; i++) {
             let unit = targetUnit * Math.pow(3, i-1);
-            let stepTotal = unit * 2;
-            
-            accCost += stepTotal;
-            
-            martingalePlan.push({
-                step: i, unit: unit, stepTotal: stepTotal, accCost: accCost
-            });
-
-            tableHTML += `<tr><td>${i}</td><td>${formatNumber(unit)}</td><td>${formatNumber(stepTotal)}</td><td style="color:#e74c3c;">${formatNumber(accCost)}</td></tr>`;
+            let stepTotal = unit * 2; accCost += stepTotal;
+            martingalePlan.push({ step: i, unit: unit, stepTotal: stepTotal, accCost: accCost });
+            tableHTML += `<tr><td>${i}</td><td>${formatNum(unit)}</td><td>${formatNum(stepTotal)}</td><td style="color:#e74c3c;">${formatNum(accCost)}</td></tr>`;
         }
-        
         document.getElementById('previewMartingaleTable').innerHTML = tableHTML;
     }
 
-    window.onload = function() {
-        loadDraft();
-        updateSetupPreview();
-    };
-
     function startGame() {
-        updateSetupPreview(); 
-        capital = parseFloat(document.getElementById('capital').value);
-        baseUnit = parseFloat(document.getElementById('baseUnit').value);
-        if(!capital || !baseUnit || capital < martingalePlan[0].stepTotal) { alert("กรุณาตรวจสอบข้อมูลทุนให้เพียงพอต่อการเล่นไม้แรก"); return; }
+        updateSetupPreview();
+        gameCap = parseFloat(document.getElementById('capital').value);
+        if(!gameCap || gameCap < martingalePlan[0].stepTotal) { alert("ทุนไม่พอสู้ไม้แรกครับ"); return; }
         
-        targetAmount = capital + (capital * (parseFloat(document.getElementById('targetPercent').value) / 100));
-        stopLossAmount = capital - (capital * (parseFloat(document.getElementById('stopLossPercent').value) / 100));
-        bankroll = capital; active = true;
+        bankroll = gameCap; step = 1; currentMode = 'DOZEN'; historyArr = []; streakArr = []; stateHist = [];
+        isActive = true;
         
         document.getElementById('setupSection').style.display = 'none';
         document.getElementById('gameplaySection').style.display = 'grid';
-        document.getElementById('martingaleTable').innerHTML = document.getElementById('previewMartingaleTable').innerHTML;
+        document.getElementById('alertBox').style.display = 'none';
+        document.getElementById('numHistoryBoard').innerHTML = "รอผล...";
+        document.getElementById('streakBoard').innerText = "รอสถิติ...";
         
-        updateDashboard(); updateCommandUI();
+        document.querySelectorAll('#gameplaySection button').forEach(b => b.disabled = false);
+        document.getElementById('martingaleTable').innerHTML = document.getElementById('previewMartingaleTable').innerHTML;
+
+        updateGameDashboard(); updateCommandUI();
     }
 
     function getZone(num, mode) {
         if (num === 0) return 0;
         return mode === 'DOZEN' ? Math.ceil(num / 12) : (num % 3 === 0 ? 3 : num % 3);
     }
-
-    function getTargetZones(mode) {
+    
+    function getTargets() {
         let unique = [];
-        for(let i = historyNums.length - 1; i >= 0; i--) {
-            let z = getZone(historyNums[i], mode);
+        if (historyArr.length === 0) return [];
+        for(let i = historyArr.length - 1; i >= 0; i--) {
+            let n = historyArr[i];
+            if(n === 0) continue; 
+            let z = getZone(n, currentMode);
             if(z !== 0 && !unique.includes(z)) { unique.push(z); }
             if(unique.length === 2) return unique.sort();
-        }
-        return []; 
-    }
-
-    function saveCurrentState() {
-        let state = {
-            bankroll: bankroll, netProfit: netProfit, step: step,
-            currentPlayMode: currentPlayMode,
-            historyNums: [...historyNums], betStreak: [...betStreak],
-            numHtml: document.getElementById('numHistoryBoard').innerHTML,
-            streakHtml: document.getElementById('streakBoard').innerHTML
-        };
-        stateHistory.push(state);
-        if(stateHistory.length > 20) stateHistory.shift(); 
-    }
-
-    function triggerUndo() {
-        if (!active || stateHistory.length === 0) { alert("ไม่มีข้อมูลให้ย้อนกลับแล้วครับ"); return; }
-        let prevState = stateHistory.pop();
-        bankroll = prevState.bankroll; netProfit = prevState.netProfit; step = prevState.step;
-        currentPlayMode = prevState.currentPlayMode; historyNums = prevState.historyNums; betStreak = prevState.betStreak;
-        document.getElementById('numHistoryBoard').innerHTML = prevState.numHtml;
-        document.getElementById('streakBoard').innerHTML = prevState.streakHtml;
-        updateDashboard(); updateCommandUI();
+        } 
+        return [];
     }
 
     function processSpin(num) {
-        if (!active) return;
-        saveCurrentState(); 
+        if (!isActive) return;
+        saveGameState(); 
         
-        let targets = getTargetZones(currentPlayMode);
-        let isBetting = targets.length === 2;
-
-        if (isBetting) {
-            let hitZone = getZone(num, currentPlayMode);
-            let isWin = hitZone === targets[0] || hitZone === targets[1];
-            if (isWin) { betStreak.push("✔️"); } else { betStreak.push("❌"); }
+        let targets = getTargets();
+        if (targets.length === 2) {
+            let hit = getZone(num, currentMode);
+            let isWin = (hit === targets[0] || hit === targets[1]);
+            streakArr.push(isWin ? "✔️" : "❌");
         }
 
-        historyNums.push(num);
-        updateNumHistoryUI(num);
-        updateStreakBoard();
+        historyArr.push(num);
+        updateHistoryUI();
         updateCommandUI();
-    }
-
-    function triggerManualResult(resultType) {
-        if (!active) return;
-        
-        let plan = martingalePlan[step - 1]; 
-        if (!plan) { alert("ไม้ทบทะลุขีดจำกัดตารางแล้วครับ ระบบบังคับหยุด"); return; }
-
-        saveCurrentState(); 
-
-        if (resultType === 'WIN') {
-            // เมื่อชนะให้บวกกำไร (คืนทุนตานี้ให้ด้วย + กำไรที่ได้จากโซน)
-            bankroll += (plan.unit * 3) - plan.stepTotal; 
-            step = 1;
-            currentPlayMode = 'DOZEN'; 
-        } else if (resultType === 'LOSE') {
-            bankroll -= plan.stepTotal; 
-            step++;
-            currentPlayMode = currentPlayMode === 'DOZEN' ? 'COLUMN' : 'DOZEN'; 
-        }
-
-        updateDashboard();
-        updateCommandUI();
+        updateGameDashboard();
         checkGameEnd();
     }
 
-    function updateNumHistoryUI(num) {
-        let board = document.getElementById('numHistoryBoard');
-        if(historyNums.length === 1) board.innerHTML = ''; 
-        let isRed = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(num);
-        board.innerHTML += `<span class="num-badge ${num===0?'zero':(isRed?'red':'black')}">${num}</span>`;
-        setTimeout(() => { board.scrollLeft = board.scrollWidth; }, 50);
+    function triggerManualResult(resultType) {
+        if (!isActive) return;
+        let planItem = martingalePlan[step - 1]; 
+        if (!planItem) return;
+        saveGameState(); 
+
+        if (resultType === 'WIN') {
+            bankroll += (planItem.unit * 3) - planItem.stepTotal; 
+            step = 1; currentMode = 'DOZEN'; 
+        } else if (resultType === 'LOSE') {
+            bankroll -= planItem.stepTotal; 
+            step++; currentMode = currentMode === 'DOZEN' ? 'COLUMN' : 'DOZEN'; 
+        }
+        updateGameDashboard(); updateCommandUI(); checkGameEnd();
     }
 
-    function updateStreakBoard() {
-        let board = document.getElementById('streakBoard');
-        board.innerHTML = betStreak.length === 0 ? "รอการเช็คสถิติ..." : betStreak.join(" "); 
-        setTimeout(() => { board.scrollLeft = board.scrollWidth; }, 50);
+    function updateHistoryUI() {
+        let board = document.getElementById('numHistoryBoard'), sBoard = document.getElementById('streakBoard');
+        board.innerHTML = '';
+        historyArr.slice(-12).forEach(n => {
+            let cClass = (n === 0) ? 'zero' : (redNumsArray.includes(n) ? 'red' : 'black');
+            board.innerHTML += `<span class="num-badge ${cClass}">${n}</span>`;
+        });
+        sBoard.innerHTML = streakArr.length === 0 ? "รอสถิติ..." : streakArr.slice(-15).join(" "); 
+        setTimeout(() => { board.scrollLeft = board.scrollWidth; }, 20);
     }
 
     function updateCommandUI() {
-        if(!active) return;
-        let cmdDiv = document.getElementById('systemCommand'), detailDiv = document.getElementById('betDetail');
-        
-        if(step > martingalePlan.length) step = martingalePlan.length; 
-        
+        if(!isActive) return;
+        let cmdDiv = document.getElementById('systemCommand'), detDiv = document.getElementById('betDetail');
+        if(step > martingalePlan.length) step = martingalePlan.length;
         document.getElementById('currentStepDisplay').innerText = step;
-        let targets = getTargetZones(currentPlayMode);
-        let plan = martingalePlan[step - 1];
         
+        let targets = getTargets();
         if(targets.length === 2) {
-            let mName = currentPlayMode === 'DOZEN' ? 'D' : 'C';
-            let sClass = currentPlayMode === 'DOZEN' ? 'highlight-dozen' : 'highlight-col';
-            
-            cmdDiv.innerHTML = `<span class="${sClass}">${mName} ${targets[0]}</span> &nbsp;&nbsp; <span class="${sClass}">${mName} ${targets[1]}</span>`;
-            detailDiv.innerHTML = `ลงโซนละ <b>${formatNumber(plan.unit)}</b> บ. (ทุนตานี้ <b>${formatNumber(plan.stepTotal)}</b> บ.)`;
+            let m = currentMode === 'DOZEN' ? 'D' : 'C';
+            let s = currentMode === 'DOZEN' ? 'highlight-dozen' : 'highlight-col';
+            cmdDiv.innerHTML = `<span class="${s}">${m}${targets[0]}</span> & <span class="${s}">${m}${targets[1]}</span>`;
+            detDiv.innerHTML = `ลงโซนละ <b>${formatNum(martingalePlan[step-1].unit)}</b> บ. (ทุนรวมไม้ <b>${formatNum(martingalePlan[step-1].stepTotal)}</b> บ.)`;
         } else {
-            let mName = currentPlayMode === 'DOZEN' ? 'D' : 'C';
-            cmdDiv.innerHTML = `⏸️ รอสถิติ (${mName})...`;
-            detailDiv.innerHTML = "กดตัวเลขกระดานด้านล่างไปเรื่อยๆ เพื่อให้ระบบจับทิศทางล่าสุด";
+            let nextM = currentMode === 'DOZEN' ? 'D' : 'C';
+            cmdDiv.innerText = `⏸️ รอสถิติ (${nextM})...`;
+            detDiv.innerText = "กดตัวเลขบนแผงรูเล็ตเพื่อให้ระบบล็อคตำแหน่งคำนวณสูตร";
         }
     }
 
-    function updateDashboard() {
-        document.getElementById('currentBankroll').innerText = formatNumber(bankroll);
-        netProfit = bankroll - capital;
-        let pSpan = document.getElementById('netProfit'); pSpan.innerText = formatNumber(netProfit);
-        pSpan.style.color = netProfit >= 0 ? "#2ecc71" : "#e74c3c";
-    }
-
-    function resetStats() {
-        if(confirm("ต้องการล้างกระดานสถิติตัวเลขเพื่อเริ่มดักทางใหม่ใช่หรือไม่?\n(เงินทุนปัจจุบันสะสมจะไม่ถูกรีเซ็ต)")) {
-            saveCurrentState();
-            historyNums = []; betStreak = []; step = 1; currentPlayMode = 'DOZEN';
-            document.getElementById('numHistoryBoard').innerHTML = "รอผล...";
-            document.getElementById('streakBoard').innerHTML = "รอการเช็คสถิติ...";
-            updateCommandUI();
-        }
+    function updateGameDashboard() {
+        if(!isActive) return;
+        document.getElementById('currentBankroll').innerText = formatNum(bankroll);
+        let prof = bankroll - gameCap;
+        let pEl = document.getElementById('netProfit'); pEl.innerText = (prof >= 0 ? '+' : '') + formatNum(prof);
+        pEl.style.color = prof >= 0 ? "#27ae60" : "#e74c3c";
     }
 
     function checkGameEnd() {
-        let alertBox = document.getElementById('alertBox'), shouldEnd = false, msg = "", isSuccess = false;
-        if (bankroll >= targetAmount) { isSuccess = true; shouldEnd = true; msg = `🎉 สำเร็จ! ถึงเป้ากำไรแล้ว (+${formatNumber(netProfit)} บ.)`; } 
-        else if (bankroll <= stopLossAmount) { shouldEnd = true; msg = `🛑 ตัดขาดทุน! (${formatNumber(netProfit)} บ.) พักก่อนครับ`; }
-        else {
-            let targets = getTargetZones(currentPlayMode);
-            if(targets.length === 2 && step <= martingalePlan.length) {
-                let nextPlan = martingalePlan[step - 1];
-                if (bankroll < nextPlan.stepTotal) { shouldEnd = true; msg = `🛑 ทุนสะสมไม่พอสู้ไม้ถัดไป (ต้องการ ${formatNumber(nextPlan.stepTotal)} บ.)`; }
-            }
+        let prof = bankroll - gameCap;
+        let tpPercent = parseFloat(document.getElementById('targetPercent').value) || 15;
+        let slPercent = parseFloat(document.getElementById('stopLossPercent').value) || 50;
+        
+        let targetProfitAmount = gameCap * (tpPercent / 100);
+        let stopAmountLimit = gameCap - (gameCap * (slPercent / 100));
+        
+        let alertEl = document.getElementById('alertBox');
+        let isEnd = false, isWin = false, endMsg = "";
+        
+        if (prof >= targetProfitAmount) { 
+            isWin = true; isEnd = true; endMsg = `🎉 สำเร็จภารกิจฟันกำไรตามเป้า!`; 
+        } else if (bankroll <= stopAmountLimit || step > 6) { 
+            isEnd = true; endMsg = `🛑 สิ้นสุดรอบการลงทุนตามวินัยระบบเซฟตี้!`; 
         }
-        if (shouldEnd) {
-            alertBox.style.display = 'block'; alertBox.className = isSuccess ? "alert-box alert-success" : "alert-box alert-danger";
-            alertBox.innerHTML = `${msg}<br><button id="autoSaveBtn" class="btn-auto-save" onclick="autoSaveFromGame()">💾 บันทึกสถิติรอบนี้ลงสมุดอัตโนมัติ</button>`;
-            endGame();
+        
+        if (isEnd) {
+            alertEl.style.display = 'block'; alertEl.className = isWin ? "alert-box alert-success" : "alert-box alert-danger";
+            alertEl.innerHTML = `${endMsg}<br>ยอดสุทธิรอบนี้: <b>${formatNum(prof)}</b> บาท<br><button class="btn-primary" style="margin-top:10px; background:#2c3e50;" onclick="autoSaveToWalletFromGame(${prof})">💰 โอนยอดเข้าพอร์ตและอัปเดต Roadmap</button>`;
+            isActive = false; 
+            document.querySelectorAll('#gameplaySection button').forEach(b => b.disabled = true);
+            alertEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
 
-    function autoSaveFromGame() {
-        let d = new Date(), dateStr = d.toISOString().split('T')[0];
-        document.getElementById('logDate').value = dateStr;
-        document.getElementById('logCap').value = capital;
-        document.getElementById('logTarget').value = targetAmount - capital;
-        document.getElementById('logResult').value = netProfit;
-        document.getElementById('logWithdraw').value = (netProfit > 0) ? netProfit : 0;
-        saveDraft();
-        logs.unshift({ id: Date.now(), date: dateStr, cap: capital, target: targetAmount - capital, result: netProfit, withdraw: (netProfit > 0) ? netProfit : 0 });
-        localStorage.setItem('rouletteLogData', JSON.stringify(logs));
-        renderLogs();
-        document.getElementById('autoSaveBtn').style.display = 'none';
-        document.querySelectorAll('.tab-btn')[1].click();
-    }
+    function saveGameState() { stateHist.push({bankroll, step, currentMode, h:[...historyArr], s:[...streakArr]}); if(stateHist.length > 20) stateHist.shift(); }
+    function triggerUndo() { if (!isActive || stateHist.length === 0) return; let p = stateHist.pop(); bankroll = p.bankroll; step = p.step; currentMode = p.currentMode; historyArr = p.h; streakArr = p.s; updateHistoryUI(); updateGameDashboard(); updateCommandUI(); }
+    function resetStats() { if(confirm("ล้างกระดานสถิติรอบนี้?")) { historyArr = []; streakArr = []; step = 1; currentMode = 'DOZEN'; updateHistoryUI(); updateCommandUI(); } }
 
-    function endGame() {
-        active = false;
-        document.querySelectorAll('.btn-num, .btn-action').forEach(btn => btn.disabled = true);
-        document.getElementById('systemCommand').innerHTML = "จบโปรแกรมรอบนี้"; document.getElementById('betDetail').innerHTML = "";
-    }
+    window.onload = function() { 
+        updateSetupPreview(); 
+        renderWallet(); 
+    };
 </script>
-
 </body>
 </html>
