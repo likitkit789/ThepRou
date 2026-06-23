@@ -47,13 +47,15 @@
         .btn-num.red { background-color: #e74c3c; color: white; border-color: #c0392b;}
         .btn-num.zero { background-color: #27ae60; color: white; grid-column: span 3; height: 45px; font-size: 22px; border-color: #219150;}
         
-        /* สถิติแถวยาวและเครื่องหมาย */
-        .compact-history { background: #f8f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-bottom: 6px; font-size: 1.1em; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
-        .num-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 4px; color: white; font-weight: bold; margin-right: 4px; font-size: 0.85em; border: 1px solid #333;}
+        /* จัดการสถิติกระชับ 10 ตัวเสมอกัน ไม่ล้นกรอบ */
+        .compact-history { background: #f8f9f9; padding: 8px; border-radius: 6px; margin-bottom: 6px; display: flex; gap: 4px; overflow-x: auto; width: 100%; box-sizing: border-box; scrollbar-width: none; min-height: 42px; align-items: center;}
+        .compact-history::-webkit-scrollbar { display: none; }
+        .num-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 4px; color: white; font-weight: bold; font-size: 0.85em; border: 1px solid #333; flex-shrink: 0;}
         .num-badge.red { background: #e74c3c; } .num-badge.black { background: #2c3e50; } .num-badge.zero { background: #27ae60; }
         
-        /* ตั้งค่าความกว้างของเครื่องหมายแนวโน้มสูตรไม่ให้ล้นหลุดกรอบ */
-        #streakBoard { font-size: 1.15em; letter-spacing: 5px; white-space: nowrap; overflow: hidden; display: block; width: 100%; word-break: break-all; }
+        /* ปรับแต่งช่องเครื่องหมายแนวโน้มสูตรให้ชิดกระชับระดับกึ่งกลางเท่ากับตัวเลขด้านบนพอดี */
+        .streak-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; font-weight: bold; font-size: 1.1em; flex-shrink: 0; text-shadow: 1px 1px 1px rgba(0,0,0,0.1); }
+        .streak-badge.win-icon { color: #8e44ad; } .streak-badge.lose-icon { color: #ff5e7e; }
 
         /* Wallet Summary Boxes */
         .wallet-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;}
@@ -72,7 +74,7 @@
 
         /* Tables & Alerts */
         table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 0.85em; background: white;}
-        th, td { border: 1px solid #ecf0f1; padding: 8px 4px; text-align: center; }
+        th, td { border: 1px solid #ecf0f1; padding: 6px 4px; text-align: center; vertical-align: middle; }
         th { background-color: #34495e; color: white; position: sticky; top: 0; }
         .table-responsive { overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #ecf0f1; max-height: 350px; overflow-y: auto;}
         
@@ -86,6 +88,10 @@
         
         .highlight-dozen { background-color: #f1c40f; color: #c0392b; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
         .highlight-col { background-color: #3498db; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+
+        /* ปุ่มลบประวัติธุรกรรมแบบตัวหนังสือเรียบง่าย ไม่ดันแถวแนวตั้ง */
+        .btn-del-text { background: none; border: none; color: #e74c3c; cursor: pointer; padding: 2px 8px; font-weight: bold; font-size: 0.9em; border-radius: 4px; transition: 0.2s; }
+        .btn-del-text:hover { background: #fdf2f2; text-decoration: underline; }
 
         @media (max-width: 600px) { .main-layout { grid-template-columns: 1fr; } .wallet-summary { grid-template-columns: 1fr; } }
     </style>
@@ -144,10 +150,10 @@
                     <div>กำไรรอบนี้: <span id="netProfit" style="font-weight:bold;">0</span></div>
                 </div>
                 <div class="box">
-                    <div style="font-size: 0.8em; color:#7f8c8d;">ประวัติตัวเลข (ขวาใหม่สุด):</div>
+                    <div style="font-size: 0.8em; color:#7f8c8d; margin-bottom: 2px;">ประวัติตัวเลข (ขวาใหม่สุด):</div>
                     <div class="compact-history" id="numHistoryBoard">รอผล...</div>
-                    <div style="font-size: 0.8em; color:#7f8c8d; margin-top:5px;">แนวโน้มสูตร:</div>
-                    <div class="compact-history"><div id="streakBoard">รอสถิติ...</div></div>
+                    <div style="font-size: 0.8em; color:#7f8c8d; margin-bottom: 2px; margin-top: 4px;">แนวโน้มสูตร:</div>
+                    <div class="compact-history" id="streakBoard">รอสถิติ...</div>
                 </div>
                 <div class="box" style="border-left: 4px solid var(--project-purple);">
                     <div class="action-control-grid">
@@ -320,11 +326,12 @@
                 let color = log.type === 'PLAY_WIN' ? (log.isNegative ? '#e74c3c' : '#27ae60') : '#e67e22';
                 let sign = log.type === 'WITHDRAW' ? '-' : (log.isNegative ? '-' : '+');
                 
+                // ปรับแต่งปุ่มลัดจัดการจากรูปถังขยะเป็นปุ่มคำว่า "ลบ" แบบกะทัดรัด ตัวหนา ไม่ดันแถว
                 tbody.innerHTML += `<tr>
                     <td>${log.date} <span style="color:#7f8c8d; font-size:0.85em; font-weight:bold;">(${log.time})</span></td>
                     <td style="color:${color}; font-weight:bold;">${label}</td>
                     <td style="font-weight:bold;">${sign}${formatNum(log.amount)}</td>
-                    <td><button onclick="deleteWalletItem(${log.id})" style="background:none; border:none; color:#e74c3c; cursor:pointer;">🗑️</button></td>
+                    <td><button onclick="deleteWalletItem(${log.id})" class="btn-del-text">ลบ</button></td>
                 </tr>`;
             }
         });
@@ -407,7 +414,7 @@
             
             let totalGainNeeded = project.target - project.cap;
             let currentGain = globalSumWin; 
-            if(totalGainNeeded <= 0) totalGainNeeded = 1; 
+            if(totalGainNeeded <= 0) totalNeeded = 1; 
             
             let percent = (currentGain / totalGainNeeded) * 100;
             percent = Math.min(100, Math.max(0, percent)); 
@@ -449,7 +456,6 @@
                         statusHTML = '<span class="status-wait">⏳ รอเป้า</span>';
                     }
 
-                    // แก้ไขอักษรตกหล่น "วันี่" เป็น "วันที่" และนำตัวปัดบรรทัดออกเพื่อให้อยู่บรรทัดเดียวกันเสมอกันเป๊ะ
                     tbody.innerHTML += `<tr style="${rowStyle}">
                         <td><b>วันที่ ${i}</b> &nbsp;<small style="color:#7f8c8d;">(${loopDayStr})</small></td>
                         <td style="color:#8e44ad; font-weight:bold;">+${formatNum(Math.ceil(dailyProfitNeeded))}</td>
@@ -505,7 +511,7 @@
         document.getElementById('gameplaySection').style.display = 'grid';
         document.getElementById('alertBox').style.display = 'none';
         document.getElementById('numHistoryBoard').innerHTML = "รอผล...";
-        document.getElementById('streakBoard').innerText = "รอสถิติ...";
+        document.getElementById('streakBoard').innerHTML = "รอสถิติ...";
         
         document.querySelectorAll('#gameplaySection button').forEach(b => b.disabled = false);
         document.getElementById('martingaleTable').innerHTML = document.getElementById('previewMartingaleTable').innerHTML;
@@ -569,15 +575,25 @@
         let board = document.getElementById('numHistoryBoard'), sBoard = document.getElementById('streakBoard');
         board.innerHTML = '';
         
-        // บังคับจำกัดการโชว์ให้มากสุดแค่ 12 ตัวเพื่อให้สัมพันธ์พอดีกับเครื่องหมายแนวโน้มสูตร
-        let maxDisplayItems = historyArr.slice(-12);
+        // บังคับจำกัดการโชว์ให้มากสุดแค่ 10 ตัวล่าสุดให้พอดีและกระชับกับกล่องตามที่บรีฟสั่งการ
+        let maxDisplayItems = historyArr.slice(-10);
         maxDisplayItems.forEach(n => {
             let cClass = (n === 0) ? 'zero' : (redNumsArray.includes(n) ? 'red' : 'black');
             board.innerHTML += `<span class="num-badge ${cClass}">${n}</span>`;
         });
         
-        // จำกัดให้แนวโน้มสูตรโชว์ไม่เกิน 12 เครื่องหมายตามประวัติตัวเลขเพื่อป้องกันการล้นกรอบปัดตกแถว
-        sBoard.innerHTML = streakArr.length === 0 ? "รอสถิติ..." : streakArr.slice(-12).join(" "); 
+        // ปรับแต่งแถวเครื่องหมายแนวโน้มสูตร: จำกัดโชว์ 10 ตัว และบีบเว้นวรรคให้ชิดตรงระดับกันพอดี
+        sBoard.innerHTML = '';
+        let maxDisplayStreaks = streakArr.slice(-10);
+        if (maxDisplayStreaks.length === 0) {
+            sBoard.innerHTML = '<span style="color:#bdc3c7; font-size:0.9em; padding-left:5px;">รอสถิติ...</span>';
+        } else {
+            maxDisplayStreaks.forEach(st => {
+                let sClass = st === "✔️" ? "win-icon" : "lose-icon";
+                sBoard.innerHTML += `<span class="streak-badge ${sClass}">${st}</span>`;
+            });
+        }
+        
         setTimeout(() => { board.scrollLeft = board.scrollWidth; }, 20);
     }
 
@@ -591,7 +607,7 @@
         if(targets.length === 2) {
             let m = currentMode === 'DOZEN' ? 'D' : 'C';
             let s = currentMode === 'DOZEN' ? 'highlight-dozen' : 'highlight-col';
-            cmdDiv.innerHTML = `<span class="${s}">${m}${targets[0]}</span> & <span class="${s}">${m}${targets[1]}</span>`;
+            cmdDiv.innerHTML = `<span class="${s}">${m}${targets[0]}</span> & &nbsp;<span class="${s}">${m}${targets[1]}</span>`;
             detDiv.innerHTML = `ลงโซนละ <b>${formatNum(martingalePlan[step-1].unit)}</b> บ. (ทุนรวมไม้ <b>${formatNum(martingalePlan[step-1].stepTotal)}</b> บ.)`;
         } else {
             let nextM = currentMode === 'DOZEN' ? 'D' : 'C';
