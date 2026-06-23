@@ -46,9 +46,14 @@
         .btn-num.black { background-color: #2c3e50; color: white; }
         .btn-num.red { background-color: #e74c3c; color: white; border-color: #c0392b;}
         .btn-num.zero { background-color: #27ae60; color: white; grid-column: span 3; height: 45px; font-size: 22px; border-color: #219150;}
-        .compact-history { background: #f8f9f9; padding: 10px; border-radius: 6px; margin-bottom: 6px; font-size: 1.1em; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
-        .num-badge { inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 4px; color: white; font-weight: bold; margin-right: 4px; font-size: 0.85em; border: 1px solid #333;}
+        
+        /* สถิติแถวยาวและเครื่องหมาย */
+        .compact-history { background: #f8f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-bottom: 6px; font-size: 1.1em; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+        .num-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 4px; color: white; font-weight: bold; margin-right: 4px; font-size: 0.85em; border: 1px solid #333;}
         .num-badge.red { background: #e74c3c; } .num-badge.black { background: #2c3e50; } .num-badge.zero { background: #27ae60; }
+        
+        /* ตั้งค่าความกว้างของเครื่องหมายแนวโน้มสูตรไม่ให้ล้นหลุดกรอบ */
+        #streakBoard { font-size: 1.15em; letter-spacing: 5px; white-space: nowrap; overflow: hidden; display: block; width: 100%; word-break: break-all; }
 
         /* Wallet Summary Boxes */
         .wallet-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;}
@@ -90,12 +95,14 @@
 <div class="container">
     <h1>🎯 Roulette Master Portfolio Synergy Pro</h1>
 
+    <!-- 3 แท็บเมนูหลัก -->
     <div class="tabs">
         <div class="tab-btn game active" onclick="switchTab('game')">🎮 แท็บ 1: หน้ากระดานเล่นเกม</div>
         <div class="tab-btn log" onclick="switchTab('log')">💼 แท็บ 2: พอร์ตโฟลิโอ</div>
         <div class="tab-btn roadmap" onclick="switchTab('roadmap')">🚀 แท็บ 3: แผนงาน Roadmap</div>
     </div>
 
+    <!-- ================= TAB 1: ระบบเล่นรูเล็ต ================= -->
     <div id="tab-game" class="tab-content active">
         <div class="box" id="setupSection" style="border-left: 4px solid var(--game-blue);">
             <h3>⚙️ ตั้งค่าเงินทุนเริ่มต้น</h3>
@@ -119,6 +126,7 @@
         <div id="alertBox" class="alert-box"></div>
 
         <div class="main-layout" id="gameplaySection" style="display:none;">
+            <!-- ฝั่งซ้าย -->
             <div class="left-col">
                 <div class="box" style="border-left: 4px solid #f1c40f;">
                     <h3>🤖 คำสั่งระบบ (ไม้ที่ <span id="currentStepDisplay">1</span>)</h3>
@@ -129,6 +137,7 @@
                     <div class="numpad-container" id="numpadArea"></div>
                 </div>
             </div>
+            <!-- ฝั่งขวา -->
             <div class="right-col">
                 <div class="status-board" style="background: #34495e; color: white; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around;">
                     <div>ทุนสะสมรอบนี้: <span id="currentBankroll">0</span></div>
@@ -138,7 +147,7 @@
                     <div style="font-size: 0.8em; color:#7f8c8d;">ประวัติตัวเลข (ขวาใหม่สุด):</div>
                     <div class="compact-history" id="numHistoryBoard">รอผล...</div>
                     <div style="font-size: 0.8em; color:#7f8c8d; margin-top:5px;">แนวโน้มสูตร:</div>
-                    <div id="streakBoard" style="font-size: 1.1em; letter-spacing: 2px;">รอสถิติ...</div>
+                    <div class="compact-history"><div id="streakBoard">รอสถิติ...</div></div>
                 </div>
                 <div class="box" style="border-left: 4px solid var(--project-purple);">
                     <div class="action-control-grid">
@@ -154,6 +163,7 @@
         </div>
     </div>
 
+    <!-- ================= TAB 2: พอร์ตโฟลิโอ & รายการธุรกรรม ================= -->
     <div id="tab-log" class="tab-content">
         <div class="wallet-summary">
             <div class="wallet-card card-win">
@@ -188,6 +198,7 @@
         </div>
     </div>
 
+    <!-- ================= TAB 3: แผนงาน Roadmap ================= -->
     <div id="tab-roadmap" class="tab-content">
         <div id="roadmapActive" style="display:none;">
             <div class="roadmap-box">
@@ -349,7 +360,7 @@
         switchTab('roadmap'); 
     }
 
-    // ================= TAB 3: ROADMAP ENGINE (แก้ไขช่วงเวลาเริ่มต้นและสิ้นสุดได้) =================
+    // ================= TAB 3: ROADMAP ENGINE =================
     let project = JSON.parse(localStorage.getItem('roulette_roadmap_v15_date')) || null;
     
     function startProject() {
@@ -361,11 +372,10 @@
         
         if(!cap || !target || isNaN(rate) || !startDtStr || !endDtStr) { alert("กรุณากรอกข้อมูลตั้งค่าและช่วงเวลาให้ครบถ้วนครับ"); return; }
         
-        // คำนวณหาจำนวนวันระหว่างวันที่เลือก
         let d1 = new Date(startDtStr);
         let d2 = new Date(endDtStr);
         let timeDiff = d2.getTime() - d1.getTime();
-        let daysComputed = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // รวมวันเริ่มแรกด้วย
+        let daysComputed = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; 
         
         if(daysComputed <= 0) { alert("วันที่สิ้นสุดโปรเจค ต้องอยู่หลังวันที่เริ่มต้นครับ"); return; }
 
@@ -389,7 +399,6 @@
         
         if(!project) {
             setupBox.style.display = 'block'; activeBox.style.display = 'none'; tableBox.style.display = 'none';
-            // เซ็ต default วันนี้ลงช่องฟอร์ม
             let todayISO = new Date().toISOString().split('T')[0];
             document.getElementById('setupPjStartDate').value = todayISO;
             document.getElementById('setupPjEndDate').value = todayISO;
@@ -414,7 +423,6 @@
             let remain = totalGainNeeded - globalSumWin;
             document.getElementById('pjRemainText').innerText = remain <= 0 ? "🎯 คุณบรรลุเป้าหมายแผน Roadmap สำเร็จ!" : `เหลือเป้าหมายกำไรที่ต้องเก็บอีก ${formatNum(Math.ceil(remain))} บ.`;
 
-            // เจนตารางทบต้นรายวันสะสมรวมทุนล่วงหน้าตามวันที่เลือก
             let tbody = document.getElementById('pjDailyTableBody'); 
             if(tbody) {
                 tbody.innerHTML = ''; 
@@ -425,7 +433,6 @@
                     let dailyProfitNeeded = currentDayTargetBalance * project.rate; 
                     currentDayTargetBalance += dailyProfitNeeded; 
 
-                    // คำนวณขยับวันที่ทีละวันในตารางเพื่อความแม่นยำรายวัน
                     let nextD = new Date(baseDate);
                     nextD.setDate(baseDate.getDate() + (i - 1));
                     let loopDayStr = `${nextD.getDate().toString().padStart(2,'0')}/${(nextD.getMonth()+1).toString().padStart(2,'0')}/${nextD.getFullYear()+543}`;
@@ -442,8 +449,9 @@
                         statusHTML = '<span class="status-wait">⏳ รอเป้า</span>';
                     }
 
+                    // แก้ไขอักษรตกหล่น "วันี่" เป็น "วันที่" และนำตัวปัดบรรทัดออกเพื่อให้อยู่บรรทัดเดียวกันเสมอกันเป๊ะ
                     tbody.innerHTML += `<tr style="${rowStyle}">
-                        <td><b>วันี่ ${i}</b><br><small style="color:#7f8c8d;">(${loopDayStr})</small></td>
+                        <td><b>วันที่ ${i}</b> &nbsp;<small style="color:#7f8c8d;">(${loopDayStr})</small></td>
                         <td style="color:#8e44ad; font-weight:bold;">+${formatNum(Math.ceil(dailyProfitNeeded))}</td>
                         <td style="font-weight:bold;">${formatNum(Math.ceil(currentDayTargetBalance))}</td>
                         <td>${statusHTML}</td>
@@ -560,11 +568,16 @@
     function updateHistoryUI() {
         let board = document.getElementById('numHistoryBoard'), sBoard = document.getElementById('streakBoard');
         board.innerHTML = '';
-        historyArr.slice(-12).forEach(n => {
+        
+        // บังคับจำกัดการโชว์ให้มากสุดแค่ 12 ตัวเพื่อให้สัมพันธ์พอดีกับเครื่องหมายแนวโน้มสูตร
+        let maxDisplayItems = historyArr.slice(-12);
+        maxDisplayItems.forEach(n => {
             let cClass = (n === 0) ? 'zero' : (redNumsArray.includes(n) ? 'red' : 'black');
             board.innerHTML += `<span class="num-badge ${cClass}">${n}</span>`;
         });
-        sBoard.innerHTML = streakArr.length === 0 ? "รอสถิติ..." : streakArr.slice(-15).join(" "); 
+        
+        // จำกัดให้แนวโน้มสูตรโชว์ไม่เกิน 12 เครื่องหมายตามประวัติตัวเลขเพื่อป้องกันการล้นกรอบปัดตกแถว
+        sBoard.innerHTML = streakArr.length === 0 ? "รอสถิติ..." : streakArr.slice(-12).join(" "); 
         setTimeout(() => { board.scrollLeft = board.scrollWidth; }, 20);
     }
 
@@ -609,12 +622,12 @@
         if (prof >= targetProfitAmount) { 
             isWin = true; isEnd = true; endMsg = `🎉 สำเร็จภารกิจฟันกำไรตามเป้า!`; 
         } else if (bankroll <= stopAmountLimit || step > 6) { 
-            isEnd = true; endMsg = `🛑 สิ้นสุดรอบการลงทุนตามวินัยระบบเซฟตี้!`; 
+            isEnd = true; endMsg = `🛑 ตัดขาดทุนตามวินัยระบบเซฟตี้!`; 
         }
         
         if (isEnd) {
             alertEl.style.display = 'block'; alertEl.className = isWin ? "alert-box alert-success" : "alert-box alert-danger";
-            alertEl.innerHTML = `${endMsg}<br>ยอดสุทธิรอบนี้: <b>${formatNum(prof)}</b> บาท<br><button class="btn-primary" style="margin-top:10px; background:#2c3e50;" onclick="autoSaveToWalletFromGame(${prof})">💰 โอนยอดเข้าพอร์ตและอัปเดต Roadmap</button>`;
+            alertEl.innerHTML = `${endMsg}<br>ยอดสุทธิรอบนี้: <b>${formatNum(prof)}</b> บาท<br><button class="btn-primary" style="margin-top:10px; background:#2c3e50;" onclick="autoSaveToWalletFromGame(${prof})">💰 บันทึกโอนยอดเข้าพอร์ตและอัปเดต Roadmap</button>`;
             isActive = false; 
             document.querySelectorAll('#gameplaySection button').forEach(b => b.disabled = true);
             alertEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -628,6 +641,7 @@
     window.onload = function() { 
         updateSetupPreview(); 
         renderWallet(); 
+        renderProject();
     };
 </script>
 </body>
