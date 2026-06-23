@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roulette Dynamic Pro (Decoupled Logic)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 15px; }
+        .container { max-width: 850px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        h1 { color: #2c3e50; text-align: center; font-size: 1.4em; margin-top: 0; margin-bottom: 15px;}
+        h3 { color: #2c3e50; text-align: center; font-size: 1.1em; margin: 5px 0 10px 0; }
+        
+        /* ระบบ Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { background: #ecf0f1; color: #7f8c8d; flex: 1; padding: 12px; border-radius: 6px; cursor: pointer; text-align: center; font-weight: bold; border: 2px solid transparent; font-size: 1em; transition: 0.3s;}
+        .tab-btn:hover { background: #bdc3c7; }
+        .tab-btn.active { background: #e8f4f8; color: #2980b9; border: 2px solid #3498db; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* UI ทั่วไป */
+        .box { background: #ecf0f1; padding: 12px; border-radius: 6px; border-left: 4px solid #3498db; margin-bottom: 15px;}
+        .main-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        /* ล็อกไม่ให้ Grid ขยายกว้างเกินจอเมื่อสถิติยาวขึ้น */
+        .left-col, .right-col { min-width: 0; }
+
+        .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        
+        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+        .input-group input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        
+        button { background: #3498db; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-size: 16px; width: 100%; font-weight: bold; }
+        button:hover { background: #2980b9; }
+        button:disabled { background: #95a5a6; cursor: not-allowed; opacity: 0.7;}
+        
+        /* ปุ่มควบคุมผลลัพธ์แยกแบบกดเอง (ย้ายไปขวา) */
+        .action-control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .btn-action { font-size: 15px; padding: 10px; border-radius: 5px; font-weight: bold; }
+        .btn-action.win { background: #2ecc71; } .btn-action.win:hover { background: #27ae60; }
+        .btn-action.lose { background: #e74c3c; } .btn-action.lose:hover { background: #c0392b; }
+        .btn-action.undo { background: #95a5a6; } .btn-action.undo:hover { background: #7f8c8d; }
+        .btn-action.reset { background: #e67e22; } .btn-action.reset:hover { background: #d35400; }
+
+        /* ปรับขนาดปุ่ม Numpad */
+        .numpad-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .btn-num { font-size: 18px; padding: 2px 0; height: 35px; font-weight: bold; border-radius: 4px; border: 1px solid #2c3e50; display: flex; align-items: center; justify-content: center; }
+        .btn-num.black { background-color: #2c3e50; color: white; }
+        .btn-num.black:hover { background-color: #1a252f; }
+        .btn-num.red { background-color: #e74c3c; color: white; border-color: #c0392b;}
+        .btn-num.red:hover { background-color: #c0392b; }
+        .btn-num.zero { background-color: #27ae60; color: white; grid-column: span 3; height: 40px; font-size: 20px; border-color: #219150;}
+        .btn-num.zero:hover { background-color: #219150; }
+
+        /* แถบสถิติแนวยาว */
+        .compact-history { 
+            background: #fff; border: 1px solid #ddd; padding: 8px; border-radius: 4px; 
+            margin-bottom: 8px; font-size: 1.2em; white-space: nowrap; 
+            overflow-x: auto; scroll-behavior: smooth; 
+            width: 100%; box-sizing: border-box; /* บังคับความกว้างไม่ให้ทะลุกล่องแม่ */
+            scrollbar-width: none; /* ซ่อน scrollbar สำหรับ Firefox */
+        }
+        .compact-history::-webkit-scrollbar { display: none; } /* ซ่อน scrollbar สำหรับ Chrome/Safari */
+
+        /* สไตล์ลูกแก้วตัวเลข */
+        .num-badge { display: inline-block; width: 25px; height: 25px; line-height: 25px; text-align: center; border-radius: 4px; color: white; font-weight: bold; margin-right: 4px; font-size: 0.85em; border: 1px solid #333;}
+        .num-badge.red { background: #e74c3c; border-color: #c0392b; }
+        .num-badge.black { background: #2c3e50; border-color: #1a252f; }
+        .num-badge.zero { background: #27ae60; border-color: #219150; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 0.85em; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+        th { background-color: #34495e; color: white; }
+
+        .highlight-dozen { background-color: #f1c40f; color: #c0392b; padding: 4px 10px; border-radius: 4px; font-size: 1.3em; font-weight: bold; display: inline-block; margin: 2px; border: 1px solid #e67e22;}
+        .highlight-col { background-color: #3498db; color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 1.3em; font-weight: bold; display: inline-block; margin: 2px; border: 1px solid #2980b9;}
+
+        .alert-box { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; text-align: center; display: none; font-size: 1em; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .btn-auto-save { background: #8e44ad; color: white; margin-top: 10px; font-size: 1.1em; padding: 12px;}
+        .btn-auto-save:hover { background: #732d91; }
+
+        /* สไตล์หน้า Trading Log */
+        .table-responsive { overflow-x: auto; background: white; border-radius: 6px; border: 1px solid #ccc;}
+        .log-table th { background: #2c3e50; color: white; }
+        .btn-delete { background: #e74c3c; color: white; padding: 5px 8px; font-size: 12px; width: auto; border-radius: 4px;}
+        .btn-delete:hover { background: #c0392b; }
+        .btn-save { background: #27ae60; }
+        .btn-save:hover { background: #219150; }
+        .text-plus { color: #27ae60; font-weight: bold; }
+        .text-minus { color: #e74c3c; font-weight: bold; }
+
+        @media (max-width: 700px) { .main-layout { grid-template-columns: 1fr; } .tabs { flex-direction: column; gap: 5px;} }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎯 Roulette Dynamic Pro</h1>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('game')">🎮 ระบบเล่นรูเล็ต</button>
+        <button class="tab-btn" onclick="switchTab('log')">📔 บันทึกการลงทุนรายวัน</button>
+    </div>
+
+    <div id="tab-game" class="tab-content active">
+        <div class="box" id="setupSection">
+            <h3>⚙️ ตั้งค่าทุน (บาท)</h3>
+            <div class="setup-grid">
+                <div class="input-group"><label>ทุนตั้งต้น:</label><input type="number" id="capital" value="2000"></div>
+                <div class="input-group"><label>เบทเริ่ม (ต่อโซน):</label><input type="number" id="baseUnit" value="100"></div>
+                <div class="input-group"><label>เป้ากำไร (%):</label><input type="number" id="targetPercent" value="20"></div>
+                <div class="input-group"><label>ตัดขาดทุน (%):</label><input type="number" id="stopLossPercent" value="50"></div>
+            </div>
+            <button onclick="startGame()" id="startBtn">▶️ เริ่มระบบ</button>
+        </div>
+
+        <div id="alertBox" class="alert-box"></div>
+
+        <div class="main-layout" id="gameplaySection" style="display:none;">
+            <div class="left-col">
+                <div class="box" style="border-left-color: #f1c40f;">
+                    <h3>คำสั่งระบบ (ไม้ที่ <span id="currentStepDisplay">1</span>)</h3>
+                    <div id="systemCommand" style="font-size: 1.1em; font-weight: bold; color: #f39c12; text-align: center; padding: 15px 0;">⏸️ รอเก็บสถิติ...</div>
+                    <div id="betDetail" style="text-align: center; font-size: 0.9em; color: #555;"></div>
+                </div>
+
+                <div class="box" style="border-left-color: #2c3e50; background: #dfe6e9;">
+                    <h3>⏺️ กระดานตัวเลข (จิ้มสถิติที่ออก)</h3>
+                    <div class="numpad-container">
+                        <button class="btn-num zero" onclick="processSpin(0)">0</button>
+                        <script>
+                            const redNums = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+                            let numpad = document.querySelector('.numpad-container');
+                            for(let i=1; i<=36; i++){
+                                let colorClass = redNums.includes(i) ? 'red' : 'black';
+                                numpad.innerHTML += `<button class="btn-num ${colorClass}" onclick="processSpin(${i})">${i}</button>`;
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-col">
+                <div class="status-board" id="dashboard">
+                    <div>ทุน: <span id="currentBankroll">0</span> บ.</div>
+                    <div>กำไร: <span id="netProfit">0</span> บ.</div>
+                </div>
+
+                <div class="box">
+                    <h3>📊 สถิติแบบย่อ</h3>
+                    <div style="font-size: 0.8em; color: #7f8c8d; margin-bottom: 2px;">ประวัติตัวเลขล่าสุด:</div>
+                    <div class="compact-history" id="numHistoryBoard">รอผล...</div>
+                    
+                    <div style="font-size: 0.8em; color: #7f8c8d; margin-bottom: 2px; margin-top: 5px;">แนวโน้มสูตร (✔️/❌ อัตโนมัติ):</div>
+                    <div class="compact-history" id="streakBoard">รอการเช็คสถิติ...</div>
+                </div>
+
+                <div class="box" style="border-left-color: #9b59b6;">
+                    <div style="font-size: 0.8em; color: #7f8c8d; margin-bottom: 5px; text-align: center;">👇 ควบคุมเงินทุน (กดเมื่อลงเงินจริงเท่านั้น) 👇</div>
+                    <div class="action-control-grid">
+                        <button class="btn-action win" onclick="triggerManualResult('WIN')">✔️ WIN</button>
+                        <button class="btn-action lose" onclick="triggerManualResult('LOSE')">❌ LOSE</button>
+                        <button class="btn-action undo" onclick="triggerUndo()">↩️ UNDO</button>
+                        <button class="btn-action reset" onclick="resetStats()">🔄 RESET</button>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3 style="margin-top:0; margin-bottom: 5px;">ตารางเดินเงิน</h3>
+                    <table id="martingaleTable">
+                        <tr><th>ไม้</th><th>ลงละ</th><th>ทุนตานี้</th></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-log" class="tab-content">
+        <div class="box" style="border-left-color: #27ae60;">
+            <h3>📝 เพิ่มบันทึกประจำวัน</h3>
+            <div class="setup-grid">
+                <div class="input-group"><label>วันที่:</label><input type="date" id="logDate" oninput="saveDraft()"></div>
+                <div class="input-group"><label>เงินทุน (บาท):</label><input type="number" id="logCap" oninput="saveDraft()"></div>
+                <div class="input-group"><label>เป้ากำไรที่ตั้งไว้ (บาท):</label><input type="number" id="logTarget" oninput="saveDraft()"></div>
+                <div class="input-group"><label>ได้ / เสีย สุทธิ (บาท):</label><input type="number" id="logResult" oninput="saveDraft()"></div>
+                <div class="input-group" style="grid-column: span 2;"><label>ยอดถอนเข้าบัญชีจริง (บาท):</label><input type="number" id="logWithdraw" oninput="saveDraft()"></div>
+            </div>
+            <button class="btn-save" onclick="saveLog()">💾 บันทึกลงสมุด</button>
+        </div>
+
+        <div class="box" style="border-left-color: #8e44ad; padding: 0;">
+            <h3 style="padding: 12px 0 0 0;">📓 ประวัติการลงทุน (Trading Log)</h3>
+            <div class="table-responsive">
+                <table class="log-table" id="logTable">
+                    <thead><tr><th>วันที่</th><th>ทุน</th><th>เป้ากำไร</th><th>ได้/เสีย</th><th>ยอดถอน</th><th>จัดการ</th></tr></thead>
+                    <tbody id="logTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ================= โลจิกส่วน TABS & LOG =================
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('tab-' + tabName).classList.add('active');
+    }
+
+    let logs = JSON.parse(localStorage.getItem('rouletteLogData')) || [];
+    function saveDraft() {
+        const draft = {
+            date: document.getElementById('logDate').value, cap: document.getElementById('logCap').value,
+            target: document.getElementById('logTarget').value, result: document.getElementById('logResult').value,
+            withdraw: document.getElementById('logWithdraw').value
+        };
+        localStorage.setItem('rouletteDraftInput', JSON.stringify(draft));
+    }
+    function loadDraft() {
+        const draft = JSON.parse(localStorage.getItem('rouletteDraftInput'));
+        if(draft) {
+            if(draft.date) document.getElementById('logDate').value = draft.date;
+            if(draft.cap) document.getElementById('logCap').value = draft.cap;
+            if(draft.target) document.getElementById('logTarget').value = draft.target;
+            if(draft.result) document.getElementById('logResult').value = draft.result;
+            if(draft.withdraw) document.getElementById('logWithdraw').value = draft.withdraw;
+        } else { document.getElementById('logDate').valueAsDate = new Date(); }
+        renderLogs();
+    }
+    window.onload = loadDraft;
+
+    function saveLog() {
+        let date = document.getElementById('logDate').value, cap = parseFloat(document.getElementById('logCap').value) || 0;
+        let target = parseFloat(document.getElementById('logTarget').value) || 0, result = parseFloat(document.getElementById('logResult').value) || 0;
+        let withdraw = parseFloat(document.getElementById('logWithdraw').value) || 0;
+        if(!date || cap === 0) { alert("กรุณากรอกวันที่และเงินทุน"); return; }
+        logs.unshift({ id: Date.now(), date, cap, target, result, withdraw }); 
+        localStorage.setItem('rouletteLogData', JSON.stringify(logs));
+        renderLogs();
+    }
+    function deleteLog(id) {
+        if(confirm("ลบบันทึกนี้ใช่หรือไม่?")) { logs = logs.filter(log => log.id !== id); localStorage.setItem('rouletteLogData', JSON.stringify(logs)); renderLogs(); }
+    }
+    function renderLogs() {
+        let tbody = document.getElementById('logTableBody'); tbody.innerHTML = '';
+        if(logs.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="padding: 20px; color: #7f8c8d;">ยังไม่มีบันทึก</td></tr>'; return; }
+        logs.forEach(log => {
+            let d = new Date(log.date), dateStr = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
+            let rClass = log.result >= 0 ? 'text-plus' : 'text-minus', rSign = log.result > 0 ? '+' : '';
+            tbody.innerHTML += `<tr><td>${dateStr}</td><td>${log.cap}</td><td>${log.target}</td><td class="${rClass}">${rSign}${log.result}</td><td style="color:#2980b9; font-weight:bold;">${log.withdraw > 0 ? log.withdraw : '-'}</td><td><button class="btn-delete" onclick="deleteLog(${log.id})">ลบ</button></td></tr>`;
+        });
+    }
+
+    // ================= โลจิกส่วนเกมรูเล็ต (DECOUPLED LOGIC) =================
+    let capital, baseUnit, targetAmount, stopLossAmount;
+    let bankroll, netProfit = 0;
+    let step = 1, active = false;
+    let historyNums = [], currentPlayMode = 'DOZEN', betStreak = [];
+    
+    let stateHistory = [];
+
+    function startGame() {
+        capital = parseFloat(document.getElementById('capital').value);
+        baseUnit = parseFloat(document.getElementById('baseUnit').value);
+        if(!capital || !baseUnit || capital < baseUnit*2) { alert("กรุณาตรวจสอบข้อมูลทุน"); return; }
+        targetAmount = capital + (capital * (parseFloat(document.getElementById('targetPercent').value) / 100));
+        stopLossAmount = capital - (capital * (parseFloat(document.getElementById('stopLossPercent').value) / 100));
+        bankroll = capital; active = true;
+        document.getElementById('setupSection').style.display = 'none';
+        document.getElementById('gameplaySection').style.display = 'grid';
+        generateMartingaleTable(); updateDashboard(); updateCommandUI();
+    }
+
+    function generateMartingaleTable() {
+        let table = document.getElementById('martingaleTable'); table.innerHTML = "<tr><th>ไม้</th><th>ลงละ</th><th>ทุนตานี้</th></tr>";
+        for(let i=1; i<=6; i++) { let unit = baseUnit * Math.pow(3, i-1); table.innerHTML += `<tr><td>${i}</td><td>${unit}</td><td>${unit*2}</td></tr>`; }
+    }
+
+    function getZone(num, mode) {
+        if (num === 0) return 0;
+        return mode === 'DOZEN' ? Math.ceil(num / 12) : (num % 3 === 0 ? 3 : num % 3);
+    }
+
+    function getTargetZones(mode) {
+        let unique = [];
+        for(let i = historyNums.length - 1; i >= 0; i--) {
+            let z = getZone(historyNums[i], mode);
+            if(z !== 0 && !unique.includes(z)) { unique.push(z); }
+            if(unique.length === 2) return unique.sort();
+        }
+        return []; 
+    }
+
+    function saveCurrentState() {
+        let state = {
+            bankroll: bankroll, netProfit: netProfit, step: step,
+            currentPlayMode: currentPlayMode,
+            historyNums: [...historyNums], betStreak: [...betStreak],
+            numHtml: document.getElementById('numHistoryBoard').innerHTML,
+            streakHtml: document.getElementById('streakBoard').innerHTML
+        };
+        stateHistory.push(state);
+        if(stateHistory.length > 20) stateHistory.shift(); 
+    }
+
+    function triggerUndo() {
+        if (!active || stateHistory.length === 0) { alert("ไม่มีข้อมูลให้ย้อนกลับแล้วครับ"); return; }
+        let prevState = stateHistory.pop();
+        
+        bankroll = prevState.bankroll;
+        netProfit = prevState.netProfit;
+        step = prevState.step;
+        currentPlayMode = prevState.currentPlayMode;
+        historyNums = prevState.historyNums;
+        betStreak = prevState.betStreak;
+        
+        document.getElementById('numHistoryBoard').innerHTML = prevState.numHtml;
+        document.getElementById('streakBoard').innerHTML = prevState.streakHtml;
+        
+        updateDashboard(); updateCommandUI();
+    }
+
+    // 1. กระดานตัวเลข: มีหน้าที่คำนวณสถิติและเพิ่ม ✔️/❌ เท่านั้น (ไม่ยุ่งกับเงิน)
+    function processSpin(num) {
+        if (!active) return;
+        saveCurrentState(); 
+        
+        let targets = getTargetZones(currentPlayMode);
+        let isBetting = targets.length === 2;
+
+        if (isBetting) {
+            let hitZone = getZone(num, currentPlayMode);
+            let isWin = hitZone === targets[0] || hitZone === targets[1];
+            if (isWin) {
+                betStreak.push("✔️");
+            } else {
+                betStreak.push("❌");
+            }
+        }
+
+        historyNums.push(num);
+        updateNumHistoryUI(num);
+        updateStreakBoard();
+        updateCommandUI();
+    }
+
+    // 2. ปุ่ม WIN / LOSE: มีหน้าที่อัปเดตเงิน และไม้ทบ (ไม่เพิ่ม ✔️/❌)
+    function triggerManualResult(resultType) {
+        if (!active) return;
+        
+        saveCurrentState(); 
+        let unitBet = baseUnit * Math.pow(3, step - 1);
+        let totalBet = unitBet * 2;
+
+        if (resultType === 'WIN') {
+            bankroll += unitBet;
+            step = 1;
+            currentPlayMode = 'DOZEN'; // รีเซ็ตมิติ
+        } else if (resultType === 'LOSE') {
+            bankroll -= totalBet;
+            step++;
+            currentPlayMode = currentPlayMode === 'DOZEN' ? 'COLUMN' : 'DOZEN'; // สลับมิติเมื่อแพ้
+        }
+
+        updateDashboard();
+        updateCommandUI();
+        checkGameEnd();
+    }
+
+    function updateNumHistoryUI(num) {
+        let board = document.getElementById('numHistoryBoard');
+        if(historyNums.length === 1) board.innerHTML = ''; 
+        let isRed = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(num);
+        board.innerHTML += `<span class="num-badge ${num===0?'zero':(isRed?'red':'black')}">${num}</span>`;
+        setTimeout(() => { board.scrollLeft = board.scrollWidth; }, 50);
+    }
+
+    function updateStreakBoard() {
+        let board = document.getElementById('streakBoard');
+        board.innerHTML = betStreak.length === 0 ? "รอการเช็คสถิติ..." : betStreak.join(" "); 
+        setTimeout(() => { board.scrollLeft = board.scrollWidth; }, 50);
+    }
+
+    function updateCommandUI() {
+        if(!active) return;
+        let cmdDiv = document.getElementById('systemCommand'), detailDiv = document.getElementById('betDetail');
+        document.getElementById('currentStepDisplay').innerText = step;
+        let targets = getTargetZones(currentPlayMode);
+        
+        if(targets.length === 2) {
+            let unitBet = baseUnit * Math.pow(3, step - 1);
+            let mName = currentPlayMode === 'DOZEN' ? 'D' : 'C';
+            let sClass = currentPlayMode === 'DOZEN' ? 'highlight-dozen' : 'highlight-col';
+            cmdDiv.innerHTML = `<span class="${sClass}">${mName} ${targets[0]}</span> &nbsp;&nbsp; <span class="${sClass}">${mName} ${targets[1]}</span>`;
+            detailDiv.innerHTML = `ลงละ <b>${unitBet}</b> บ. (ทุนรวมตานี้ <b>${unitBet*2}</b> บ.)`;
+        } else {
+            let mName = currentPlayMode === 'DOZEN' ? 'D' : 'C';
+            cmdDiv.innerHTML = `⏸️ รอสถิติ (${mName})...`;
+            detailDiv.innerHTML = "กดตัวเลขกระดานด้านล่างไปเรื่อยๆ เพื่อให้ระบบจับทิศทางล่าสุด";
+        }
+    }
+
+    function updateDashboard() {
+        document.getElementById('currentBankroll').innerText = bankroll;
+        netProfit = bankroll - capital;
+        let pSpan = document.getElementById('netProfit'); pSpan.innerText = netProfit;
+        pSpan.style.color = netProfit >= 0 ? "#2ecc71" : "#e74c3c";
+    }
+
+    function resetStats() {
+        if(confirm("ต้องการล้างกระดานสถิติตัวเลขเพื่อเริ่มดักทางใหม่ใช่หรือไม่?\n(เงินทุนปัจจุบันสะสมจะไม่ถูกรีเซ็ต)")) {
+            saveCurrentState();
+            historyNums = []; betStreak = []; step = 1; currentPlayMode = 'DOZEN';
+            document.getElementById('numHistoryBoard').innerHTML = "รอผล...";
+            document.getElementById('streakBoard').innerHTML = "รอการเช็คสถิติ...";
+            updateCommandUI();
+        }
+    }
+
+    function checkGameEnd() {
+        let alertBox = document.getElementById('alertBox'), shouldEnd = false, msg = "", isSuccess = false;
+        if (bankroll >= targetAmount) { isSuccess = true; shouldEnd = true; msg = `🎉 สำเร็จ! ถึงเป้ากำไรแล้ว (+${netProfit} บ.)`; } 
+        else if (bankroll <= stopLossAmount) { shouldEnd = true; msg = `🛑 ตัดขาดทุน! (-${Math.abs(netProfit)} บ.) พักก่อนครับ`; }
+        else {
+            let targets = getTargetZones(currentPlayMode);
+            if(targets.length === 2) {
+                let nextUnit = baseUnit * Math.pow(3, step - 1);
+                if (bankroll < nextUnit * 2) { shouldEnd = true; msg = `🛑 ทุนสะสมไม่พอทบไม้ถัดไป (ต้องการ ${nextUnit * 2} บ.)`; }
+            }
+        }
+        if (shouldEnd) {
+            alertBox.style.display = 'block'; alertBox.className = isSuccess ? "alert-box alert-success" : "alert-box alert-danger";
+            alertBox.innerHTML = `${msg}<br><button id="autoSaveBtn" class="btn-auto-save" onclick="autoSaveFromGame()">💾 บันทึกสถิติรอบนี้ลงสมุดอัตโนมัติ</button>`;
+            endGame();
+        }
+    }
+
+    function autoSaveFromGame() {
+        let d = new Date(), dateStr = d.toISOString().split('T')[0];
+        document.getElementById('logDate').value = dateStr;
+        document.getElementById('logCap').value = capital;
+        document.getElementById('logTarget').value = targetAmount - capital;
+        document.getElementById('logResult').value = netProfit;
+        document.getElementById('logWithdraw').value = (netProfit > 0) ? netProfit : 0;
+        saveDraft();
+        logs.unshift({ id: Date.now(), date: dateStr, cap: capital, target: targetAmount - capital, result: netProfit, withdraw: (netProfit > 0) ? netProfit : 0 });
+        localStorage.setItem('rouletteLogData', JSON.stringify(logs));
+        renderLogs();
+        document.getElementById('autoSaveBtn').style.display = 'none';
+        document.querySelectorAll('.tab-btn')[1].click();
+    }
+
+    function endGame() {
+        active = false;
+        document.querySelectorAll('.btn-num, .btn-action').forEach(btn => btn.disabled = true);
+        document.getElementById('systemCommand').innerHTML = "จบโปรแกรมรอบนี้"; document.getElementById('betDetail').innerHTML = "";
+    }
+</script>
+
+</body>
+</html>
