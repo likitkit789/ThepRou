@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roulette Master Portfolio Synergy Pro</title>
+    <title>Roulette Master Portfolio Synergy Pro V3.5</title>
     <style>
         :root {
             --game-blue: #3498db;
@@ -42,12 +42,12 @@
         .btn-action.win { background: #2ecc71; } .btn-action.lose { background: #e74c3c; } 
         .btn-action.undo { background: #95a5a6; } .btn-action.reset { background: #e67e22; }
         .numpad-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-        .btn-num { font-size: 16px; padding: 4px 0; height: 38px; border-radius: 4px; border: 1px solid #2c3e50; font-weight: bold; }
-        .btn-num.black { background-color: #2c3e50; color: white; }
-        .btn-num.red { background-color: #e74c3c; color: white; border-color: #c0392b;}
+        .btn-num { font-size: 16px; padding: 4px 0; height: 38px; border-radius: 4px; border: 1px solid #2c3e50; font-weight: bold; color: white; cursor: pointer; }
+        .btn-num.black { background-color: #2c3e50; border-color: #1a252f; }
+        .btn-num.red { background-color: #e74c3c; border-color: #c0392b;}
         .btn-num.zero { background-color: #27ae60; color: white; grid-column: span 3; height: 45px; font-size: 22px; border-color: #219150;}
         
-        /* สถิติตัวเลขกระชับ 10 ช่องไฟชิดกัน */
+        /* สถิติตัวเลขประวัติ */
         .compact-history { background: #f8f9f9; padding: 8px; border-radius: 6px; margin-bottom: 6px; display: flex; gap: 4px; overflow-x: auto; width: 100%; box-sizing: border-box; scrollbar-width: none; min-height: 42px; align-items: center;}
         .compact-history::-webkit-scrollbar { display: none; }
         .num-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 4px; color: white; font-weight: bold; font-size: 0.85em; border: 1px solid #333; flex-shrink: 0;}
@@ -105,12 +105,35 @@
 
     <div id="tab-game" class="tab-content active">
         <div class="box" id="setupSection" style="border-left: 4px solid var(--game-blue);">
-            <h3>⚙️ ตั้งค่าเงินทุนเริ่มต้น</h3>
+            <h3>⚙️ ตั้งค่าระบบการเล่นและสูตรเดินเงิน</h3>
             <div class="setup-grid">
                 <div class="input-group"><label>ทุนหน้างาน (บาท):</label><input type="number" id="capital" value="5000" oninput="handleCapitalChange()"></div>
-                <div class="input-group"><label>กำไรเป้าหมาย (%):</label><input type="number" id="targetPercent" value="15" oninput="updateSetupPreview()"></div>
-                <div class="input-group"><label>กำไรต่อตา (บาท):</label><input type="number" id="baseUnit" value="100" oninput="updateSetupPreview()"></div>
-                <div class="input-group"><label>ตัดขาดทุน (%):</label><input type="number" id="stopLossPercent" value="50" oninput="updateSetupPreview()"></div>
+                <div class="input-group"><label>กำไรเป้าหมายต่อรอบ (บาท):</label><input type="number" id="targetAmountInput" value="600" oninput="updateSetupPreview()"></div>
+                <div class="input-group" id="roundLimitBox"><label>ต้องการชนะกี่รอบเลิก (รอบ):</label><input type="number" id="targetRoundsLimit" value="1" min="1" oninput="updateSetupPreview()"></div>
+                
+                <div class="input-group">
+                    <label>ระบบคุมเงินทุน:</label>
+                    <select id="moneyManagementSystem" onchange="toggleStrategyUI()">
+                        <option value="MARTINGALE" selected>Martingale (ระบบทบไม้คูณ 3)</option>
+                        <option value="LABOUCHERE">Labouchere (ระบบชิปกลมคุม WIN/LOSE เอง)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group" id="martingaleUnitBox"><label>กำไรต่อตาพื้นฐาน (บาท):</label><input type="number" id="baseUnit" value="100" oninput="updateSetupPreview()"></div>
+                <div class="input-group" id="martingaleStopBox"><label>ตัดขาดทุน (%):</label><input type="number" id="stopLossPercent" value="50" oninput="updateSetupPreview()"></div>
+                
+                <div class="input-group" id="labouchereChipBox" style="display:none;"><label>ขนาดมูลค่าชิปหลักหน้างาน:</label>
+                    <select id="labouchereChipSelector" onchange="updateSetupPreview()">
+                        <option value="25">ชิป 25</option>
+                        <option value="50">ชิป 50</option>
+                        <option value="100" selected>ชิป 100</option>
+                        <option value="250">ชิป 250</option>
+                    </select>
+                </div>
+                <div class="input-group" id="labouchereAutoSequenceNotice" style="display:none; grid-column: span 2; background: #eef7f2; padding: 8px; border-radius: 6px; border: 1px solid #c3e6cb;">
+                    <span style="color:#155724; font-size: 0.85em; font-weight: bold;">🎯 ระบบคุ้มกันสูงสุด: หากชุดตัวเลขลาบูแชร์หมดลงแต่กำไรจริงยังไม่ครบเป้าบาท ระบบจะสร้างชุดตัวเลขชุดใหม่มาสู้ต่อเนื่องอัตโนมัติทันที</span>
+                </div>
+
                 <div class="input-group" style="grid-column: span 2;">
                     <label>มิติที่ต้องการเลือกเล่นในรอบนี้:</label>
                     <select id="playModeSelector" onchange="updateSetupPreview()">
@@ -122,10 +145,12 @@
             
             <div style="background: #f8f9f9; border: 1px dashed #bdc3c7; padding: 10px; border-radius: 6px; margin-bottom: 12px;">
                 <div style="display:flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em;">
-                    <span>🎯 เป้าเลิก: <b id="prevTarget" style="color:#27ae60;">0</b> บ.</span>
-                    <span>🛑 ขาดทุน: <b id="prevStop" style="color:#c0392b;">0</b> บ.</span>
+                    <span>🎯 เป้าหมายเงินรวมที่ต้องจบ: <b id="prevTarget" style="color:#27ae60;">0</b> บ.</span>
+                    <span>🛑 ขีดจำกัดความเสี่ยงเซฟตี้: <b id="prevStop" style="color:#c0392b;">0</b> บ.</span>
                 </div>
-                <table id="previewMartingaleTable"></table>
+                <div class="table-responsive" style="margin-top: 5px;">
+                    <table id="previewStrategyTable"></table>
+                </div>
             </div>
             <button class="btn-primary" onclick="startGame()">▶️ เปิดหน้ากระดานลุยสูตร</button>
         </div>
@@ -135,9 +160,14 @@
         <div class="main-layout" id="gameplaySection" style="display:none;">
             <div class="left-col">
                 <div class="box" style="border-left: 4px solid #f1c40f;">
-                    <h3>🤖 คำสั่งระบบ (ไม้ที่ <span id="currentStepDisplay">1</span>) - มิติ: <span id="activeModeNameDisplay">โหล</span></h3>
+                    <h3>🤖 คำสั่งระบบ (<span id="strategyTypeLabel">Martingale</span>) - มิติ: <span id="activeModeNameDisplay">โหล</span></h3>
                     <div id="systemCommand" style="font-size: 1.2em; font-weight: bold; color: #f39c12; text-align: center; padding: 10px 0;">⏸️ รอเก็บสถิติ...</div>
                     <div id="betDetail" style="text-align: center; font-size: 0.85em; color: #555;"></div>
+                </div>
+                <div class="box" id="liveLabouchereBox" style="display: none; border-left: 4px solid #3498db;">
+                    <div style="font-size: 0.8em; color: #7f8c8d;">ชุดตัวเลขลาบูแชร์ปัจจุบัน (หน่วยชิป):</div>
+                    <div id="liveSequenceDisplay" style="font-size: 1.3em; font-weight: bold; color: #2c3e50; letter-spacing: 2px; text-align: center; padding: 5px 0;">-</div>
+                    <div style="font-size: 0.75em; color: #95a5a6; text-align: center;">รอบความสำเร็จ: <span id="currentRoundDisplay">1</span> / <span id="maxRoundsDisplay">1</span></div>
                 </div>
                 <div class="box">
                     <div class="numpad-container" id="numpadArea"></div>
@@ -145,7 +175,7 @@
             </div>
             <div class="right-col">
                 <div class="status-board" style="background: #34495e; color: white; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px; display: flex; justify-content: space-around;">
-                    <div>ทุนสะสมรอบนี้: <span id="currentBankroll">0</span></div>
+                    <div>ทุนเริ่มต้นรอบนี้: <span id="startBankrollDisplay">0</span></div>
                     <div>กำไรรอบนี้: <span id="netProfit" style="font-weight:bold;">0</span></div>
                 </div>
                 <div class="box">
@@ -161,8 +191,12 @@
                         <button class="btn-action undo" onclick="triggerUndo()">UNDO</button>
                         <button class="btn-action reset" onclick="resetStats()">RESET</button>
                     </div>
-                    <h3 style="margin: 10px 0 5px 0; font-size: 0.85em;">ตารางประกอบการเดินเงิน</h3>
-                    <table id="martingaleTable"></table>
+                    <div id="activeMartingaleTableBox">
+                        <h3 style="margin: 10px 0 5px 0; font-size: 0.85em;">ตารางประกอบการเดินเงิน (ไม้ 1-6)</h3>
+                        <div class="table-responsive">
+                            <table id="martingaleTable"></table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -248,7 +282,7 @@
 
         <div id="roadmapTableBox" style="display:none; margin-bottom:12px;">
             <div class="box" style="padding: 0; border-left-color: var(--project-purple);">
-                <h3 style="padding: 10px; margin: 0;">📅 ตารางเป้าหมายสะสมรายวัน (ทบต้นรวมทุนไปทุกวันตามระยะเวลาที่เลือก)</h3>
+                <h3 style="padding: 10px; margin: 0;">📅 ตารางเป้าหมายสะสมรายวัน</h3>
                 <div class="table-responsive">
                     <table class="roadmap-table">
                         <thead><tr><th>วัน / วันที่ระบุ</th><th>กำไรที่ต้องทำ</th><th>พอร์ตต้องจบที่ยอด</th><th>สถานะ</th></tr></thead>
@@ -262,11 +296,15 @@
 </div>
 
 <script>
-    // ================= ล็อกชื่อกุญแจฐานข้อมูลความจำเครื่องถาวรตามสั่ง =================
     const STORAGE_KEY_WALLET = "ROULETTE_MASTER_VAULT_FINAL_STABLE";
     const STORAGE_KEY_PROJECT = "ROULETTE_MASTER_ROADMAP_FINAL_STABLE";
 
-    function formatNum(num) { return Number(num).toLocaleString('th-TH'); }
+    const redNumsArray = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+
+    function formatNum(num) { 
+        if(isNaN(num) || num === null || num === undefined) return "0";
+        return Number(num).toLocaleString('th-TH'); 
+    }
     
     function setManualInputDefaultTime() {
         let now = new Date();
@@ -275,10 +313,29 @@
         let day = String(now.getDate()).padStart(2, '0');
         let hours = String(now.getHours()).padStart(2, '0');
         let minutes = String(now.getMinutes()).padStart(2, '0');
-        
-        let formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
         let inputEl = document.getElementById('manualProfitDateTime');
-        if (inputEl) inputEl.value = formattedDateTime;
+        if (inputEl) inputEl.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    function generateNumpad() {
+        let numpadArea = document.getElementById('numpadArea');
+        if (!numpadArea) return;
+        numpadArea.innerHTML = '';
+        
+        let zeroBtn = document.createElement('button');
+        zeroBtn.className = 'btn-num zero';
+        zeroBtn.innerText = '0';
+        zeroBtn.onclick = function() { processSpin(0); };
+        numpadArea.appendChild(zeroBtn);
+        
+        for (let i = 1; i <= 36; i++) {
+            let numBtn = document.createElement('button');
+            let colorClass = redNumsArray.includes(i) ? 'red' : 'black';
+            numBtn.className = `btn-num ${colorClass}`;
+            numBtn.innerText = i;
+            numBtn.onclick = function() { processSpin(i); };
+            numpadArea.appendChild(numBtn);
+        }
     }
 
     function getNow() { 
@@ -305,9 +362,37 @@
         if (tabName === 'log') setManualInputDefaultTime();
     }
 
+    function toggleStrategyUI() {
+        let sys = document.getElementById('moneyManagementSystem').value;
+        document.getElementById('labouchereAutoSequenceNotice').style.display = (sys === "LABOUCHERE") ? "block" : "none";
+        document.getElementById('labouchereChipBox').style.display = (sys === "LABOUCHERE") ? "block" : "none";
+        document.getElementById('martingaleUnitBox').style.display = (sys === "MARTINGALE") ? "block" : "none";
+        document.getElementById('martingaleStopBox').style.display = (sys === "MARTINGALE") ? "block" : "none";
+        updateSetupPreview();
+    }
+
     function handleCapitalChange() {
         updateSetupPreview();
         renderWallet();
+    }
+
+    function generateAutoLabouchereSequence(targetCash, chipValue) {
+        let totalUnitsNeeded = Math.ceil(targetCash / chipValue);
+        if (totalUnitsNeeded <= 0) totalUnitsNeeded = 1;
+
+        let seq = [];
+        let remaining = totalUnitsNeeded;
+        while (remaining > 0) {
+            if (remaining >= 2) {
+                seq.push(1);
+                remaining -= 1;
+            } else {
+                seq.push(remaining);
+                remaining = 0;
+            }
+        }
+        seq.sort((a, b) => a - b);
+        return seq;
     }
 
     // ================= TAB 2: WALLET ENGINE =================
@@ -337,11 +422,8 @@
         let yearBE = parsedDT.getFullYear() + 543;
         let hours = String(parsedDT.getHours()).padStart(2, '0');
         let minutes = String(parsedDT.getMinutes()).padStart(2, '0');
-        
-        let displayDate = `${day}/${month}/${yearBE}`;
-        let displayTime = `${hours}:${minutes}`;
 
-        walletLogs.unshift({ id: Date.now(), date: displayDate, time: displayTime, type: 'PLAY_WIN', amount: Math.abs(amt), isNegative: amt < 0 });
+        walletLogs.unshift({ id: Date.now(), date: `${day}/${month}/${yearBE}`, time: `${hours}:${minutes}`, type: 'PLAY_WIN', amount: Math.abs(amt), isNegative: amt < 0 });
         localStorage.setItem(STORAGE_KEY_WALLET, JSON.stringify(walletLogs));
         document.getElementById('manualProfitAmount').value = '';
         setManualInputDefaultTime();
@@ -448,8 +530,6 @@
         } 
     }
 
-    document.getElementById('sumWin').innerText = formatNum(0); // init placeholders
-
     function renderProject() {
         let setupBox = document.getElementById('projectSetupBox');
         let activeBox = document.getElementById('roadmapActive');
@@ -518,59 +598,130 @@
         }
     }
 
-    // ================= TAB 1: OPERATIONAL ROULETTE ENGINE =================
-    const redNumsArray = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-    let numpadArea = document.getElementById('numpadArea');
-    numpadArea.innerHTML = `<button class="btn-num zero" onclick="processSpin(0)">0</button>`;
-    for(let i=1; i<=36; i++) {
-        let c = redNumsArray.includes(i) ? 'red' : 'black';
-        numpadArea.innerHTML += `<button class="btn-num ${c}" onclick="processSpin(${i})">${i}</button>`;
-    }
-
-    let gameCap, bankroll, step = 1, currentMode = 'DOZEN', historyArr = [], streakArr = [], stateHist = [], isActive = false, martingalePlan = [];
+    // ================= TAB 1: OPERATIONAL ENGINE =================
+    let gameCap = 5000, bankroll = 5000, step = 1, currentMode = 'DOZEN', historyArr = [], streakArr = [], stateHist = [];
+    let isActive = false, martingalePlan = [], currentSystem = "MARTINGALE";
+    
+    let labInitialSeq = [], labCurrentSeq = [], labChipBaseValue = 100;
+    let labCurrentRound = 1, labMaxRounds = 1, labSessionProfitTarget = 600;
 
     function updateSetupPreview() {
-        let cap = parseFloat(document.getElementById('capital').value) || 0;
-        let targetUnit = parseFloat(document.getElementById('baseUnit').value) || 0;
-        let tpPercent = parseFloat(document.getElementById('targetPercent').value) || 0;
-        let slPercent = parseFloat(document.getElementById('stopLossPercent').value) || 0;
+        let cap = parseFloat(document.getElementById('capital').value);
+        let sys = document.getElementById('moneyManagementSystem').value;
+        let targetGoal = parseFloat(document.getElementById('targetAmountInput').value);
+        let roundsLimit = parseInt(document.getElementById('targetRoundsLimit').value);
+        
+        if(isNaN(cap)) cap = 0;
+        if(isNaN(targetGoal)) targetGoal = 0;
+        if(isNaN(roundsLimit) || roundsLimit < 1) roundsLimit = 1;
 
-        document.getElementById('prevTarget').innerText = formatNum(cap + (cap * tpPercent / 100));
-        document.getElementById('prevStop').innerText = formatNum(cap - (cap * slPercent / 100));
+        let totalTargetProfit = targetGoal * roundsLimit;
+        document.getElementById('prevTarget').innerText = formatNum(cap + totalTargetProfit);
 
-        martingalePlan = []; let accCost = 0;
-        let tableHTML = "<tr><th>ไม้</th><th>ลงโซนละ</th><th>ทุนตานี้</th><th>ทุนสะสม</th></tr>";
+        let previewTable = document.getElementById('previewStrategyTable');
 
-        for(let i=1; i<=6; i++) {
-            let unit = targetUnit * Math.pow(3, i-1);
-            let stepTotal = unit * 2; accCost += stepTotal;
-            martingalePlan.push({ step: i, unit: unit, stepTotal: stepTotal, accCost: accCost });
-            tableHTML += `<tr><td>${i}</td><td>${formatNum(unit)}</td><td>${formatNum(stepTotal)}</td><td style="color:#e74c3c;">${formatNum(accCost)}</td></tr>`;
+        if(sys === "MARTINGALE") {
+            let targetUnit = parseFloat(document.getElementById('baseUnit').value);
+            let slPercent = parseFloat(document.getElementById('stopLossPercent').value);
+            
+            if(isNaN(targetUnit)) targetUnit = 0;
+            if(isNaN(slPercent)) slPercent = 0;
+
+            document.getElementById('prevStop').innerText = formatNum(cap - (cap * slPercent / 100));
+
+            martingalePlan = []; let accCost = 0;
+            let tableHTML = "<thead><tr><th>ไม้</th><th>ลงโซนละ</th><th>ทุนตานี้</th><th>ทุนสะสม</th></tr></thead><tbody>";
+
+            for(let i=1; i<=6; i++) {
+                let unit = targetUnit * Math.pow(3, i-1);
+                let stepTotal = unit * 2; accCost += stepTotal;
+                martingalePlan.push({ step: i, unit: unit, stepTotal: stepTotal, accCost: accCost });
+                tableHTML += `<tr><td>${i}</td><td>${formatNum(unit)} บ.</td><td>${formatNum(stepTotal)} บ.</td><td style="color:#e74c3c; font-weight:bold;">${formatNum(accCost)} บ.</td></tr>`;
+            }
+            tableHTML += "</tbody>";
+            previewTable.innerHTML = tableHTML;
+        } else {
+            document.getElementById('prevStop').innerText = "คุมตามขีดจำกัดหน่วยเบท";
+            let selectedChipVal = parseFloat(document.getElementById('labouchereChipSelector').value) || 100;
+            
+            let previewSeq = generateAutoLabouchereSequence(targetGoal, selectedChipVal);
+            let totalUnits = previewSeq.reduce((a, b) => a + b, 0);
+            let computedActualProfit = totalUnits * selectedChipVal;
+            
+            let firstBetUnits = previewSeq.length === 1 ? previewSeq[0] : (previewSeq[0] + previewSeq[previewSeq.length - 1]);
+            let firstBetCashPerZone = Math.ceil(firstBetUnits * selectedChipVal);
+
+            previewTable.innerHTML = `<thead><tr><th style="padding:8px;">รายละเอียดระบบชิปกลม Labouchere อัจฉริยะ V3.5</th></tr></thead><tbody><tr><td style="text-align:left; padding: 12px; line-height:1.6;">
+                • ชุดลำดับชิปคำนวณจากเป้าหมาย: <b>[ ${previewSeq.join(', ')} ]</b> (รวมทั้งสิ้น ${totalUnits} หน่วยชิป)<br>
+                • กำไรคาดการณ์สุทธิเมื่อเคลียร์จบชุด: <b style="color:#27ae60;">${formatNum(computedActualProfit)} บาท (ตรงเป๊ะเสมอกัน)</b><br>
+                • มูลค่าชิปอ้างอิง: <b>${formatNum(selectedChipVal)} บาทต่อหนึ่งโซน</b><br>
+                • <b>การวางไม้รอบแรกสุด:</b> วางเดิมพันโซนละ <b style="color:#8e44ad; font-size:1.15em;">${formatNum(firstBetCashPerZone)} บ.</b> (รวมเดิมพันรอบแรก 2 ฝั่งคือ ${formatNum(firstBetCashPerZone * 2)} บ.)
+            </td></tr></tbody>`;
         }
-        document.getElementById('previewMartingaleTable').innerHTML = tableHTML;
     }
 
     function startGame() {
         updateSetupPreview();
-        gameCap = parseFloat(document.getElementById('capital').value);
-        if(!gameCap || gameCap < martingalePlan[0].stepTotal) { alert("ทุนไม่พอสู้ไม้แรกครับ"); return; }
         
+        gameCap = parseFloat(document.getElementById('capital').value);
+        currentSystem = document.getElementById('moneyManagementSystem').value;
         currentMode = document.getElementById('playModeSelector').value;
-        document.getElementById('activeModeNameDisplay').innerText = currentMode === 'DOZEN' ? 'โหล (Dozen)' : 'คอลัมน์ (Column)';
+        
+        if(isNaN(gameCap) || gameCap <= 0) { alert("กรุณากรอกทุนหน้างานให้ถูกต้องครับ"); return; }
 
+        if(currentSystem === "MARTINGALE") {
+            document.getElementById('strategyTypeLabel').innerText = "Martingale";
+            document.getElementById('liveLabouchereBox').style.display = "none";
+            document.getElementById('activeMartingaleTableBox').style.display = "block";
+            
+            let previewContent = document.getElementById('previewStrategyTable').innerHTML;
+            document.getElementById('martingaleTable').innerHTML = previewContent;
+        } else {
+            labChipBaseValue = parseFloat(document.getElementById('labouchereChipSelector').value) || 100;
+            labMaxRounds = parseInt(document.getElementById('targetRoundsLimit').value) || 1;
+            labCurrentRound = 1;
+            labSessionProfitTarget = parseFloat(document.getElementById('targetAmountInput').value) || 600;
+
+            let generatedSeq = generateAutoLabouchereSequence(labSessionProfitTarget, labChipBaseValue);
+            labInitialSeq = [...generatedSeq];
+            labCurrentSeq = [...generatedSeq];
+
+            document.getElementById('strategyTypeLabel').innerText = "Labouchere";
+            document.getElementById('liveLabouchereBox').style.display = "block";
+            document.getElementById('activeMartingaleTableBox').style.display = "none";
+            
+            updateLabouchereLiveDisplay();
+        }
+
+        document.getElementById('activeModeNameDisplay').innerText = currentMode === 'DOZEN' ? 'โหล (Dozen)' : 'คอลัมน์ (Column)';
         bankroll = gameCap; step = 1; historyArr = []; streakArr = []; stateHist = [];
         isActive = true;
-        
+
+        generateNumpad();
+
         document.getElementById('setupSection').style.display = 'none';
         document.getElementById('gameplaySection').style.display = 'grid';
         document.getElementById('alertBox').style.display = 'none';
+        
         document.getElementById('numHistoryBoard').innerHTML = "รอผล...";
         document.getElementById('streakBoard').innerHTML = "รอสถิติ...";
-        
-        document.querySelectorAll('#gameplaySection button').forEach(b => b.disabled = false);
-        document.getElementById('martingaleTable').innerHTML = document.getElementById('previewMartingaleTable').innerHTML;
+        document.getElementById('startBankrollDisplay').innerText = formatNum(gameCap);
 
-        updateGameDashboard(); updateCommandUI();
+        document.querySelectorAll('#gameplaySection button').forEach(b => b.disabled = false);
+        
+        updateGameDashboard(); 
+        updateCommandUI();
+    }
+
+    function updateLabouchereLiveDisplay() {
+        let displayEl = document.getElementById('liveSequenceDisplay');
+        if (labCurrentSeq.length === 0) {
+            displayEl.innerText = "[ สิ้นสุดชุดตัวเลข ]";
+        } else {
+            displayEl.innerText = `[ ${labCurrentSeq.join(', ')} ]`;
+        }
+        document.getElementById('currentRoundDisplay').innerText = labCurrentRound;
+        document.getElementById('maxRoundsDisplay').innerText = labMaxRounds;
     }
 
     function getZone(num, mode) {
@@ -578,36 +729,33 @@
         return mode === 'DOZEN' ? Math.ceil(num / 12) : (num % 3 === 0 ? 3 : num % 3);
     }
     
-    // 💡 ฟังก์ชันหาสถิติตามเงื่อนไขล็อกโซน 2 ยืนพื้นเสมอ และหากเจอ 2 ยาวๆ ให้สแกนถอยหลังหา 1 หรือ 3 ล่าสุดมาจับคู่
     function getTargets() {
         if (historyArr.length === 0) return [];
-        
         let lastZone = 0;
         for (let i = historyArr.length - 1; i >= 0; i--) {
             let z = getZone(historyArr[i], currentMode);
-            if (z !== 0) {
-                lastZone = z;
-                break;
-            }
+            if (z !== 0) { lastZone = z; break; }
         }
-        
         if (lastZone === 0) return [];
-
         if (lastZone === 1) return [1, 2];
         if (lastZone === 3) return [2, 3];
         if (lastZone === 2) {
             let neighborZone = 0;
             for (let i = historyArr.length - 1; i >= 0; i--) {
                 let z = getZone(historyArr[i], currentMode);
-                if (z === 1 || z === 3) {
-                    neighborZone = z;
-                    break;
-                }
+                if (z === 1 || z === 3) { neighborZone = z; break; }
             }
             if (neighborZone === 3) return [2, 3];
             else return [1, 2];
         }
         return [];
+    }
+
+    function getCurrentBetUnitsTotal() {
+        if (currentSystem === "MARTINGALE") return 0;
+        if (labCurrentSeq.length === 0) return 0;
+        if (labCurrentSeq.length === 1) return labCurrentSeq[0];
+        return labCurrentSeq[0] + labCurrentSeq[labCurrentSeq.length - 1];
     }
 
     function processSpin(num) {
@@ -625,23 +773,69 @@
         updateHistoryUI();
         updateCommandUI();
         updateGameDashboard();
-        checkGameEnd();
     }
 
     function triggerManualResult(resultType) {
         if (!isActive) return;
-        let planItem = martingalePlan[step - 1]; 
-        if (!planItem) return;
         saveGameState(); 
 
-        if (resultType === 'WIN') {
-            bankroll += (planItem.unit * 3) - planItem.stepTotal; 
-            step = 1; 
-        } else if (resultType === 'LOSE') {
-            bankroll -= planItem.stepTotal; 
-            step++; 
+        if (currentSystem === "MARTINGALE") {
+            let planItem = martingalePlan[step - 1]; 
+            if (!planItem) return;
+            if (resultType === 'WIN') {
+                bankroll += (planItem.unit * 3) - planItem.stepTotal; 
+                step = 1; 
+            } else if (resultType === 'LOSE') {
+                bankroll -= planItem.stepTotal; 
+                step++; 
+            }
+        } else {
+            let totalUnitsToBet = getCurrentBetUnitsTotal();
+            
+            if (totalUnitsToBet <= 0 && (bankroll - gameCap) < (labSessionProfitTarget * labMaxRounds)) {
+                let currentDeficit = (labSessionProfitTarget * labMaxRounds) - (bankroll - gameCap);
+                let freshSeq = generateAutoLabouchereSequence(currentDeficit, labChipBaseValue);
+                labCurrentSeq = [...freshSeq];
+                totalUnitsToBet = getCurrentBetUnitsTotal();
+            }
+
+            if (totalUnitsToBet <= 0) return;
+            
+            let cashPerZone = Math.ceil(totalUnitsToBet * labChipBaseValue);
+            
+            if (resultType === 'WIN') {
+                if (labCurrentSeq.length <= 2) { 
+                    labCurrentSeq = []; 
+                } else { 
+                    labCurrentSeq.pop(); 
+                    labCurrentSeq.shift(); 
+                }
+                bankroll += cashPerZone; 
+            } else {
+                labCurrentSeq.push(totalUnitsToBet);
+                bankroll -= (cashPerZone * 2); 
+            }
+            
+            let currentProfitNow = bankroll - gameCap;
+            let totalProfitGoalRequired = labSessionProfitTarget * labMaxRounds;
+
+            if (labCurrentSeq.length === 0 && currentProfitNow < totalProfitGoalRequired) {
+                let cashDeficit = totalProfitGoalRequired - currentProfitNow;
+                // ⚙️ ต่อชุดย่อยใหม่ให้อัตโนมัติในพื้นหลังลื่นไหล ไม่ใช้การเด้ง alert() แจ้งเตือนขัดจังหวะการกดปุ่มแล้วครับ
+                let extensionSeq = generateAutoLabouchereSequence(cashDeficit, labChipBaseValue);
+                labCurrentSeq = [...extensionSeq];
+                
+                if (labCurrentRound < labMaxRounds && currentProfitNow >= (labSessionProfitTarget * labCurrentRound)) {
+                    labCurrentRound++;
+                }
+            }
+            
+            updateLabouchereLiveDisplay();
         }
-        updateGameDashboard(); updateCommandUI(); checkGameEnd();
+
+        updateGameDashboard(); 
+        updateCommandUI(); 
+        checkGameEnd();
     }
 
     function updateHistoryUI() {
@@ -664,32 +858,51 @@
                 sBoard.innerHTML += `<span class="streak-badge ${sClass}">${st}</span>`;
             });
         }
-        
-        setTimeout(() => { board.scrollLeft = board.scrollWidth; }, 20);
     }
 
     function updateCommandUI() {
         if(!isActive) return;
         let cmdDiv = document.getElementById('systemCommand'), detDiv = document.getElementById('betDetail');
-        if(step > martingalePlan.length) step = martingalePlan.length;
-        document.getElementById('currentStepDisplay').innerText = step;
-        
         let targets = getTargets();
-        if(targets.length === 2) {
-            let m = currentMode === 'DOZEN' ? 'D' : 'C';
-            let s = currentMode === 'DOZEN' ? 'highlight-dozen' : 'highlight-col';
-            cmdDiv.innerHTML = `<span class="${s}">${m}${targets[0]}</span> & &nbsp;<span class="${s}">${m}${targets[1]}</span>`;
-            detDiv.innerHTML = `ลงโซนละ <b>${formatNum(martingalePlan[step-1].unit)}</b> บ. (ทุนรวมไม้ <b>${formatNum(martingalePlan[step-1].stepTotal)}</b> บ.)`;
+        
+        if (currentSystem === "MARTINGALE") {
+            if(step > martingalePlan.length) step = martingalePlan.length;
+            
+            if(targets.length === 2) {
+                let m = currentMode === 'DOZEN' ? 'D' : 'C';
+                let s = currentMode === 'DOZEN' ? 'highlight-dozen' : 'highlight-col';
+                cmdDiv.innerHTML = `<span class="${s}">${m}${targets[0]}</span> & &nbsp;<span class="${s}">${m}${targets[1]}</span>`;
+                detDiv.innerHTML = `ลงโซนละ <b>${formatNum(martingalePlan[step-1].unit)}</b> บ. (ทุนสะสมไม้ <b>${formatNum(martingalePlan[step-1].stepTotal)}</b> บ.)`;
+            } else {
+                let nextM = currentMode === 'DOZEN' ? 'D' : 'C';
+                cmdDiv.innerText = `⏸️ รอสถิติ (${nextM})...`;
+                detDiv.innerText = "กดตัวเลขบนแผงรูเล็ตเพื่อให้ระบบล็อกตำแหน่งคำนวณสูตร";
+            }
         } else {
-            let nextM = currentMode === 'DOZEN' ? 'D' : 'C';
-            cmdDiv.innerText = `⏸️ รอสถิติ (${nextM})...`;
-            detDiv.innerText = "กดตัวเลขบนแผงรูเล็ตเพื่อให้ระบบล็อคตำแหน่งคำนวณสูตร";
+            if(labCurrentSeq.length === 0) {
+                cmdDiv.innerText = "🎯 บรรลุเป้าหมายสำเร็จ!";
+                detDiv.innerText = "กำลังประมวลผลยอดกำไรสรุป...";
+                return;
+            }
+            
+            let totalUnitsToBet = getCurrentBetUnitsTotal();
+            let cashPerZone = Math.ceil(totalUnitsToBet * labChipBaseValue);
+
+            if(targets.length === 2) {
+                let m = currentMode === 'DOZEN' ? 'D' : 'C';
+                let s = currentMode === 'DOZEN' ? 'highlight-dozen' : 'highlight-col';
+                cmdDiv.innerHTML = `<span class="${s}">${m}${targets[0]}</span> & &nbsp;<span class="${s}">${m}${targets[1]}</span>`;
+                detDiv.innerHTML = `วางชิปโหลละ <b>${formatNum(cashPerZone)} บ.</b> (รวมเดิมพันรอบนี้ทั้งหมด ${formatNum(cashPerZone * 2)} บ.)`;
+            } else {
+                let nextM = currentMode === 'DOZEN' ? 'D' : 'C';
+                cmdDiv.innerText = `⏸️ รอสถิติ (${nextM})...`;
+                detDiv.innerText = `เตรียมเบทชิปกลมโหลละ ${formatNum(cashPerZone)} บ.`;
+            }
         }
     }
 
     function updateGameDashboard() {
         if(!isActive) return;
-        document.getElementById('currentBankroll').innerText = formatNum(bankroll);
         let prof = bankroll - gameCap;
         let pEl = document.getElementById('netProfit'); pEl.innerText = (prof >= 0 ? '+' : '') + formatNum(prof);
         pEl.style.color = prof >= 0 ? "#27ae60" : "#e74c3c";
@@ -697,47 +910,70 @@
 
     function checkGameEnd() {
         let prof = bankroll - gameCap;
-        let tpPercent = parseFloat(document.getElementById('targetPercent').value) || 15;
-        let slPercent = parseFloat(document.getElementById('stopLossPercent').value) || 50;
-        
-        let targetProfitAmount = gameCap * (tpPercent / 100);
-        let stopAmountLimit = gameCap - (gameCap * (slPercent / 100));
-        
         let alertEl = document.getElementById('alertBox');
         let isEnd = false, isWin = false, endMsg = "";
-        
-        if (prof >= targetProfitAmount) { 
-            isWin = true; isEnd = true; endMsg = `🎉 สำเร็จภารกิจฟันกำไรตามเป้า!`; 
-        } else if (bankroll <= stopAmountLimit || step > 6) { 
-            isEnd = true; endMsg = `🛑 ตัดขาดทุนตามวินัยระบบเซฟตี้!`; 
+
+        let targetAmountInput = parseFloat(document.getElementById('targetAmountInput').value) || 600;
+        let roundsLimit = parseInt(document.getElementById('targetRoundsLimit').value) || 1;
+        let totalTargetProfit = targetAmountInput * roundsLimit;
+
+        if (currentSystem === "MARTINGALE") {
+            let slPercent = parseFloat(document.getElementById('stopLossPercent').value) || 50;
+            let stopAmountLimit = gameCap - (gameCap * (slPercent / 100));
+
+            if (prof >= totalTargetProfit) { 
+                isWin = true; isEnd = true; endMsg = `🎉 สำเร็จภารกิจฟันกำไรตามเป้า Martingale รวม!`; 
+            } else if (bankroll <= stopAmountLimit || step > 6) { 
+                isEnd = true; endMsg = `🛑 ตัดขาดทุนตามวินัยระบบเซฟตี้ Martingale!`; 
+            }
+        } else {
+            if (prof >= totalTargetProfit) {
+                isWin = true; isEnd = true; endMsg = `🎉 บรรลุเป้าหมายโกยกำไรแผนงาน Labouchere จำนวน ${formatNum(totalTargetProfit)} บาท ครบถ้วนถูกต้อง 100%!`;
+            } else if (bankroll <= (gameCap * 0.1) || labCurrentSeq.length > 30) {
+                isEnd = true; endMsg = `🛑 ตัดขาดทุนเนื่องจากจำนวนสายตัวเลขลาบูแชร์ลากยาวเกินเกณฑ์ปลอดภัย`;
+            }
         }
         
         if (isEnd) {
             alertEl.style.display = 'block'; alertEl.className = isWin ? "alert-box alert-success" : "alert-box alert-danger";
-            alertEl.innerHTML = `${endMsg}<br>ยอดสุทธิรอบนี้: <b>${formatNum(prof)}</b> บาท<br><button class="btn-primary" style="margin-top:10px; background:#2c3e50;" onclick="autoSaveToWalletFromGame(${prof})">💰 บันทึกโอนยอดเข้าพอร์ตและอัปเดต Roadmap</button>`;
+            alertEl.innerHTML = `${endMsg}<br>ยอดกำไรสุทธิรวมรอบนี้: <b>${formatNum(prof)}</b> บาท<br><button class="btn-primary" style="margin-top:10px; background:#2c3e50;" onclick="autoSaveToWalletFromGame(bankroll - gameCap)">💰 บันทึกโอนยอดเข้าพอร์ตและอัปเดต Roadmap</button>`;
             isActive = false; 
             document.querySelectorAll('#gameplaySection button').forEach(b => b.disabled = true);
             alertEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
 
-    function saveGameState() { stateHist.push({bankroll, step, history:[...historyArr], streak:[...streakArr]}); if(stateHist.length > 20) stateHist.shift(); }
-    function triggerUndo() { if (!isActive || stateHist.length === 0) return; let p = stateHist.pop(); bankroll = p.bankroll; step = p.step; historyArr = p.history; streakArr = p.streak; updateHistoryUI(); updateGameDashboard(); updateCommandUI(); }
-    function resetStats() { if(confirm("ล้างกระดานสถิติรอบนี้?")) { historyArr = []; streakArr = []; step = 1; updateHistoryUI(); updateCommandUI(); } }
+    function saveGameState() { stateHist.push({bankroll, step, currentMode, labSeq:[...labCurrentSeq], labRound:labCurrentRound, history:[...historyArr], streak:[...streakArr]}); if(stateHist.length > 20) stateHist.shift(); }
+    
+    function triggerUndo() { 
+        if (!isActive || stateHist.length === 0) return; 
+        let p = stateHist.pop(); 
+        bankroll = p.bankroll; step = p.step; currentMode = p.currentMode; 
+        if(currentSystem === "LABOUCHERE") {
+            labCurrentSeq = p.labSeq;
+            labCurrentRound = p.labRound;
+            updateLabouchereLiveDisplay();
+        }
+        historyArr = p.history; streakArr = p.streak; 
+        updateHistoryUI(); updateGameDashboard(); updateCommandUI(); 
+    }
+    
+    function resetStats() { 
+        if(confirm("ล้างกระดานสถิติรอบนี้?")) { 
+            historyArr = []; streakArr = []; step = 1; 
+            if(currentSystem === "LABOUCHERE") {
+                let freshSeq = generateAutoLabouchereSequence(labSessionProfitTarget, labChipBaseValue);
+                labCurrentSeq = [...freshSeq];
+                labCurrentRound = 1;
+                updateLabouchereLiveDisplay();
+            }
+            updateHistoryUI(); updateCommandUI(); 
+        } 
+    }
 
     window.onload = function() { 
-        updateSetupPreview(); 
-        renderWallet(); 
-        setTodayDateInputs();
+        toggleStrategyUI();
     };
-
-    function setTodayDateInputs() {
-        let todayISO = new Date().toISOString().split('T')[0];
-        let startInp = document.getElementById('setupPjStartDate');
-        let endInp = document.getElementById('setupPjEndDate');
-        if(startInp && !startInp.value) startInp.value = todayISO;
-        if(endInp && !endInp.value) endInp.value = todayISO;
-    }
 </script>
 </body>
 </html>
