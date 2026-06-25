@@ -18,6 +18,7 @@
         h1 { color: #2c3e50; text-align: center; font-size: 1.5em; margin: 0 0 15px 0;}
         h3 { color: #34495e; font-size: 1em; margin: 0 0 8px 0; border-bottom: 2px solid #ecf0f1; padding-bottom: 3px;}
         
+        /* Menu Tabs */
         .tabs { display: flex; gap: 6px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 12px 3px; border-radius: 8px; cursor: pointer; text-align: center; font-weight: bold; font-size: 0.9em; border: 2px solid transparent; background: #f8f9f9; color: #7f8c8d; transition: 0.3s; }
         .tab-btn.game.active { background: #ebf5fb; color: var(--game-blue); border-color: var(--game-blue); }
@@ -36,6 +37,7 @@
         button:hover { opacity: 0.9; }
         .btn-primary { background: var(--game-blue); width: 100%;}
 
+        /* Controls & Numpad */
         .action-control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px;}
         .btn-action.win { background: #2ecc71; } .btn-action.lose { background: #e74c3c; } 
         .btn-action.undo { background: #95a5a6; } .btn-action.reset { background: #e67e22; }
@@ -45,6 +47,7 @@
         .btn-num.red { background-color: #e74c3c; color: white; border-color: #c0392b;}
         .btn-num.zero { background-color: #27ae60; color: white; grid-column: span 3; height: 45px; font-size: 22px; border-color: #219150;}
         
+        /* สถิติตัวเลขกระชับ 10 ช่องไฟชิดกัน */
         .compact-history { background: #f8f9f9; padding: 8px; border-radius: 6px; margin-bottom: 6px; display: flex; gap: 4px; overflow-x: auto; width: 100%; box-sizing: border-box; scrollbar-width: none; min-height: 42px; align-items: center;}
         .compact-history::-webkit-scrollbar { display: none; }
         .num-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 4px; color: white; font-weight: bold; font-size: 0.85em; border: 1px solid #333; flex-shrink: 0;}
@@ -52,6 +55,7 @@
         .streak-badge { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; font-weight: bold; font-size: 1.1em; flex-shrink: 0; }
         .streak-badge.win-icon { color: #8e44ad; } .streak-badge.lose-icon { color: #ff5e7e; }
 
+        /* Wallet Summary Boxes */
         .wallet-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px;}
         .wallet-card { padding: 15px 10px; border-radius: 8px; text-align: center; color: white; font-weight: bold; box-shadow: 0 3px 6px rgba(0,0,0,0.1);}
         .card-win { background: var(--wallet-green); }
@@ -60,6 +64,7 @@
         .card-title { font-size: 0.75em; opacity: 0.9; margin-bottom: 5px; display: block; text-transform: uppercase;}
         .wallet-card span:not(.card-title) { font-size: 1.3em; }
 
+        /* Integrated Roadmap Progress Bar */
         .roadmap-box { background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; position: relative;}
         .progress-container { width: 100%; background: rgba(255,255,255,0.2); border-radius: 12px; margin: 10px 0; overflow: hidden; position: relative; height: 24px; border: 1px solid rgba(0,0,0,0.1); }
         .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #f1c40f, #f39c12); transition: width 0.6s ease; }
@@ -98,7 +103,6 @@
         <div class="tab-btn roadmap" onclick="switchTab('roadmap')">🚀 แท็บ 3: แผนงาน Roadmap</div>
     </div>
 
-    <!-- ================= TAB 1 ================= -->
     <div id="tab-game" class="tab-content active">
         <div class="box" id="setupSection" style="border-left: 4px solid var(--game-blue);">
             <h3>⚙️ ตั้งค่าเงินทุนเริ่มต้น</h3>
@@ -164,7 +168,6 @@
         </div>
     </div>
 
-    <!-- ================= TAB 2 ================= -->
     <div id="tab-log" class="tab-content">
         <div class="wallet-summary">
             <div class="wallet-card card-win">
@@ -181,9 +184,8 @@
             </div>
         </div>
 
-        <!-- ปรับแต่งตามภาพ image_12a7c5.png : แบ่งช่องยอดกำไร และช่องใส่วันเวลาแยกกันอย่างชัดเจน -->
         <div class="box" style="border-left-color: #27ae60; padding: 12px;">
-            <h3 style="margin-top:0; font-size: 0.95em;">🎰 บันทึกยอดผลกำไรด้วยตัวเอง (กรอกเอง)</h3>
+            <h3 style="margin-top:0; font-size: 0.95em;">🎮 บันทึกยอดผลกำไรด้วยตัวเอง (กรอกเอง)</h3>
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <input type="number" id="manualProfitAmount" placeholder="ยอดกำไร (เช่น 800 หรือ -1000)..." style="flex: 1; min-width: 180px; padding: 10px; border: 1px solid #bdc3c7; border-radius: 6px; font-weight: bold; font-size: 1em;">
                 <input type="datetime-local" id="manualProfitDateTime" style="flex: 1; min-width: 200px; padding: 9px; border: 1px solid #bdc3c7; border-radius: 6px; font-weight: bold; font-size: 1em; font-family: inherit;">
@@ -210,7 +212,6 @@
         </div>
     </div>
 
-    <!-- ================= TAB 3 ================= -->
     <div id="tab-roadmap" class="tab-content">
         <div id="roadmapActive" style="display:none;">
             <div class="roadmap-box">
@@ -261,13 +262,12 @@
 </div>
 
 <script>
-    // ================= STORAGE KEYS =================
+    // ================= ล็อกชื่อกุญแจฐานข้อมูลความจำเครื่องถาวรตามสั่ง =================
     const STORAGE_KEY_WALLET = "ROULETTE_MASTER_VAULT_FINAL_STABLE";
     const STORAGE_KEY_PROJECT = "ROULETTE_MASTER_ROADMAP_FINAL_STABLE";
 
     function formatNum(num) { return Number(num).toLocaleString('th-TH'); }
     
-    // ฟังก์ชันตั้งค่าเวลาปัจจุบันลงช่องฟอร์ม datetime-local ให้ตรงรูปแบบเครื่อง
     function setManualInputDefaultTime() {
         let now = new Date();
         let year = now.getFullYear();
@@ -278,9 +278,7 @@
         
         let formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
         let inputEl = document.getElementById('manualProfitDateTime');
-        if (inputEl) {
-            inputEl.value = formattedDateTime;
-        }
+        if (inputEl) inputEl.value = formattedDateTime;
     }
 
     function getNow() { 
@@ -304,9 +302,7 @@
         document.getElementById('tab-' + tabName).classList.add('active');
         renderWallet();
         renderProject();
-        if (tabName === 'log') {
-            setManualInputDefaultTime();
-        }
+        if (tabName === 'log') setManualInputDefaultTime();
     }
 
     function handleCapitalChange() {
@@ -328,7 +324,6 @@
         renderWallet();
     }
 
-    // ฟังก์ชันประมวลผลการกรอกกำไรด้วยตัวเองพร้อมวันเวลาที่ระบุอิสระ
     function submitManualProfit() {
         let amt = parseFloat(document.getElementById('manualProfitAmount').value);
         let customDateTimeStr = document.getElementById('manualProfitDateTime').value;
@@ -336,7 +331,6 @@
         if(isNaN(amt) || amt === 0) { alert("กรุณาระบุจำนวนเงินกำไรให้ถูกต้องครับ"); return; }
         if(!customDateTimeStr) { alert("กรุณาระบุวันและเวลาในการทำรายการครับ"); return; }
         
-        // แยกแปลงฟอร์แมตวันที่แบบ ISO เป็น พ.ศ. ลงตารางหลัก
         let parsedDT = new Date(customDateTimeStr);
         let day = String(parsedDT.getDate()).padStart(2, '0');
         let month = String(parsedDT.getMonth() + 1).padStart(2, '0');
@@ -347,15 +341,7 @@
         let displayDate = `${day}/${month}/${yearBE}`;
         let displayTime = `${hours}:${minutes}`;
 
-        walletLogs.unshift({ 
-            id: Date.now(), 
-            date: displayDate, 
-            time: displayTime, 
-            type: 'PLAY_WIN', 
-            amount: Math.abs(amt), 
-            isNegative: amt < 0 
-        });
-        
+        walletLogs.unshift({ id: Date.now(), date: displayDate, time: displayTime, type: 'PLAY_WIN', amount: Math.abs(amt), isNegative: amt < 0 });
         localStorage.setItem(STORAGE_KEY_WALLET, JSON.stringify(walletLogs));
         document.getElementById('manualProfitAmount').value = '';
         setManualInputDefaultTime();
@@ -462,6 +448,8 @@
         } 
     }
 
+    document.getElementById('sumWin').innerText = formatNum(0); // init placeholders
+
     function renderProject() {
         let setupBox = document.getElementById('projectSetupBox');
         let activeBox = document.getElementById('roadmapActive');
@@ -530,7 +518,7 @@
         }
     }
 
-    // ================= TAB 1 =================
+    // ================= TAB 1: OPERATIONAL ROULETTE ENGINE =================
     const redNumsArray = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
     let numpadArea = document.getElementById('numpadArea');
     numpadArea.innerHTML = `<button class="btn-num zero" onclick="processSpin(0)">0</button>`;
@@ -590,16 +578,35 @@
         return mode === 'DOZEN' ? Math.ceil(num / 12) : (num % 3 === 0 ? 3 : num % 3);
     }
     
+    // 💡 ฟังก์ชันหาสถิติตามเงื่อนไขล็อกโซน 2 ยืนพื้นเสมอ และหากเจอ 2 ยาวๆ ให้สแกนถอยหลังหา 1 หรือ 3 ล่าสุดมาจับคู่
     function getTargets() {
-        let unique = [];
         if (historyArr.length === 0) return [];
-        for(let i = historyArr.length - 1; i >= 0; i--) {
-            let n = historyArr[i];
-            if(n === 0) continue; 
-            let z = getZone(n, currentMode);
-            if(z !== 0 && !unique.includes(z)) { unique.push(z); }
-            if(unique.length === 2) return unique.sort();
-        } 
+        
+        let lastZone = 0;
+        for (let i = historyArr.length - 1; i >= 0; i--) {
+            let z = getZone(historyArr[i], currentMode);
+            if (z !== 0) {
+                lastZone = z;
+                break;
+            }
+        }
+        
+        if (lastZone === 0) return [];
+
+        if (lastZone === 1) return [1, 2];
+        if (lastZone === 3) return [2, 3];
+        if (lastZone === 2) {
+            let neighborZone = 0;
+            for (let i = historyArr.length - 1; i >= 0; i--) {
+                let z = getZone(historyArr[i], currentMode);
+                if (z === 1 || z === 3) {
+                    neighborZone = z;
+                    break;
+                }
+            }
+            if (neighborZone === 3) return [2, 3];
+            else return [1, 2];
+        }
         return [];
     }
 
@@ -637,7 +644,6 @@
         updateGameDashboard(); updateCommandUI(); checkGameEnd();
     }
 
-    // มีการจำกัดการเรียกแผงโชว์ตามสถิติกระชับ 10 ตัวพอดีกับกรอบ
     function updateHistoryUI() {
         let board = document.getElementById('numHistoryBoard'), sBoard = document.getElementById('streakBoard');
         board.innerHTML = '';
@@ -725,13 +731,12 @@
         setTodayDateInputs();
     };
 
-    // ตัวเสริมสำหรับเซ็ตค่าวันที่ให้สอดรับกันแต่แรกเริ่ม
     function setTodayDateInputs() {
         let todayISO = new Date().toISOString().split('T')[0];
         let startInp = document.getElementById('setupPjStartDate');
-        let endIn= document.getElementById('setupPjEndDate');
-        if(startIn && !startIn.value) startIn.value = todayISO;
-        if(endIn && !endIn.value) endIn.value = todayISO;
+        let endInp = document.getElementById('setupPjEndDate');
+        if(startInp && !startInp.value) startInp.value = todayISO;
+        if(endInp && !endInp.value) endInp.value = todayISO;
     }
 </script>
 </body>
