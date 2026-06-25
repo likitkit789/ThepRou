@@ -98,6 +98,7 @@
         <div class="tab-btn roadmap" onclick="switchTab('roadmap')">🚀 แท็บ 3: แผนงาน Roadmap</div>
     </div>
 
+    <!-- ================= TAB 1 ================= -->
     <div id="tab-game" class="tab-content active">
         <div class="box" id="setupSection" style="border-left: 4px solid var(--game-blue);">
             <h3>⚙️ ตั้งค่าเงินทุนเริ่มต้น</h3>
@@ -163,6 +164,7 @@
         </div>
     </div>
 
+    <!-- ================= TAB 2 ================= -->
     <div id="tab-log" class="tab-content">
         <div class="wallet-summary">
             <div class="wallet-card card-win">
@@ -179,11 +181,13 @@
             </div>
         </div>
 
+        <!-- ปรับแต่งตามภาพ image_12a7c5.png : แบ่งช่องยอดกำไร และช่องใส่วันเวลาแยกกันอย่างชัดเจน -->
         <div class="box" style="border-left-color: #27ae60; padding: 12px;">
-            <h3 style="margin-top:0; font-size: 0.95em;">🎮 บันทึกยอดผลกำไรด้วยตัวเอง (กรอกเอง)</h3>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="number" id="manualProfitAmount" placeholder="ยอดกำไร (เช่น 800 หรือ -1000)..." style="flex: 2; padding: 10px; border: 1px solid #bdc3c7; border-radius: 6px; font-weight: bold;">
-                <button style="background: var(--wallet-green); flex: 1; padding: 10px;" onclick="submitManualProfit()">💾 บันทึกกำไรกรอกมือ</button>
+            <h3 style="margin-top:0; font-size: 0.95em;">🎰 บันทึกยอดผลกำไรด้วยตัวเอง (กรอกเอง)</h3>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="number" id="manualProfitAmount" placeholder="ยอดกำไร (เช่น 800 หรือ -1000)..." style="flex: 1; min-width: 180px; padding: 10px; border: 1px solid #bdc3c7; border-radius: 6px; font-weight: bold; font-size: 1em;">
+                <input type="datetime-local" id="manualProfitDateTime" style="flex: 1; min-width: 200px; padding: 9px; border: 1px solid #bdc3c7; border-radius: 6px; font-weight: bold; font-size: 1em; font-family: inherit;">
+                <button style="background: var(--wallet-green); flex: 1; min-width: 160px; padding: 10px;" onclick="submitManualProfit()">💾 บันทึกกำไรกรอกมือ</button>
             </div>
         </div>
 
@@ -206,6 +210,7 @@
         </div>
     </div>
 
+    <!-- ================= TAB 3 ================= -->
     <div id="tab-roadmap" class="tab-content">
         <div id="roadmapActive" style="display:none;">
             <div class="roadmap-box">
@@ -256,17 +261,35 @@
 </div>
 
 <script>
-    // ================= ล็อกชื่อกุญแจเซฟถาวร (ห้ามเปลี่ยนเด็ดขาด) =================
+    // ================= STORAGE KEYS =================
     const STORAGE_KEY_WALLET = "ROULETTE_MASTER_VAULT_FINAL_STABLE";
     const STORAGE_KEY_PROJECT = "ROULETTE_MASTER_ROADMAP_FINAL_STABLE";
 
     function formatNum(num) { return Number(num).toLocaleString('th-TH'); }
+    
+    // ฟังก์ชันตั้งค่าเวลาปัจจุบันลงช่องฟอร์ม datetime-local ให้ตรงรูปแบบเครื่อง
+    function setManualInputDefaultTime() {
+        let now = new Date();
+        let year = now.getFullYear();
+        let month = String(now.getMonth() + 1).padStart(2, '0');
+        let day = String(now.getDate()).padStart(2, '0');
+        let hours = String(now.getHours()).padStart(2, '0');
+        let minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        let formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+        let inputEl = document.getElementById('manualProfitDateTime');
+        if (inputEl) {
+            inputEl.value = formattedDateTime;
+        }
+    }
+
     function getNow() { 
         let d = new Date();
         let ds = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543}`;
         let ts = d.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
         return { ds, ts };
     }
+
     function formatDisplayISO(dateStr) {
         if(!dateStr) return "-";
         let parts = dateStr.split('-');
@@ -281,6 +304,9 @@
         document.getElementById('tab-' + tabName).classList.add('active');
         renderWallet();
         renderProject();
+        if (tabName === 'log') {
+            setManualInputDefaultTime();
+        }
     }
 
     function handleCapitalChange() {
@@ -288,7 +314,7 @@
         renderWallet();
     }
 
-    // ================= TAB 2 =================
+    // ================= TAB 2: WALLET ENGINE =================
     let walletLogs = JSON.parse(localStorage.getItem(STORAGE_KEY_WALLET)) || [];
     let totalNetBalance = 0; 
     let globalSumWin = 0; 
@@ -302,13 +328,37 @@
         renderWallet();
     }
 
+    // ฟังก์ชันประมวลผลการกรอกกำไรด้วยตัวเองพร้อมวันเวลาที่ระบุอิสระ
     function submitManualProfit() {
         let amt = parseFloat(document.getElementById('manualProfitAmount').value);
+        let customDateTimeStr = document.getElementById('manualProfitDateTime').value;
+        
         if(isNaN(amt) || amt === 0) { alert("กรุณาระบุจำนวนเงินกำไรให้ถูกต้องครับ"); return; }
-        let { ds, ts } = getNow();
-        walletLogs.unshift({ id: Date.now(), date: ds, time: ts, type: 'PLAY_WIN', amount: Math.abs(amt), isNegative: amt < 0 });
+        if(!customDateTimeStr) { alert("กรุณาระบุวันและเวลาในการทำรายการครับ"); return; }
+        
+        // แยกแปลงฟอร์แมตวันที่แบบ ISO เป็น พ.ศ. ลงตารางหลัก
+        let parsedDT = new Date(customDateTimeStr);
+        let day = String(parsedDT.getDate()).padStart(2, '0');
+        let month = String(parsedDT.getMonth() + 1).padStart(2, '0');
+        let yearBE = parsedDT.getFullYear() + 543;
+        let hours = String(parsedDT.getHours()).padStart(2, '0');
+        let minutes = String(parsedDT.getMinutes()).padStart(2, '0');
+        
+        let displayDate = `${day}/${month}/${yearBE}`;
+        let displayTime = `${hours}:${minutes}`;
+
+        walletLogs.unshift({ 
+            id: Date.now(), 
+            date: displayDate, 
+            time: displayTime, 
+            type: 'PLAY_WIN', 
+            amount: Math.abs(amt), 
+            isNegative: amt < 0 
+        });
+        
         localStorage.setItem(STORAGE_KEY_WALLET, JSON.stringify(walletLogs));
         document.getElementById('manualProfitAmount').value = '';
+        setManualInputDefaultTime();
         renderWallet();
         renderProject();
     }
@@ -380,7 +430,7 @@
         switchTab('roadmap'); 
     }
 
-    // ================= TAB 3 =================
+    // ================= TAB 3: ROADMAP ENGINE =================
     let project = JSON.parse(localStorage.getItem(STORAGE_KEY_PROJECT)) || null;
     
     function startProject() {
@@ -541,33 +591,15 @@
     }
     
     function getTargets() {
+        let unique = [];
         if (historyArr.length === 0) return [];
-        
-        let lastZone = 0;
-        for (let i = historyArr.length - 1; i >= 0; i--) {
-            let z = getZone(historyArr[i], currentMode);
-            if (z !== 0) {
-                lastZone = z;
-                break;
-            }
-        }
-        
-        if (lastZone === 0) return [];
-
-        if (lastZone === 1) return [1, 2];
-        if (lastZone === 3) return [2, 3];
-        if (lastZone === 2) {
-            let neighborZone = 0;
-            for (let i = historyArr.length - 1; i >= 0; i--) {
-                let z = getZone(historyArr[i], currentMode);
-                if (z === 1 || z === 3) {
-                    neighborZone = z;
-                    break;
-                }
-            }
-            if (neighborZone === 3) return [2, 3];
-            else return [1, 2];
-        }
+        for(let i = historyArr.length - 1; i >= 0; i--) {
+            let n = historyArr[i];
+            if(n === 0) continue; 
+            let z = getZone(n, currentMode);
+            if(z !== 0 && !unique.includes(z)) { unique.push(z); }
+            if(unique.length === 2) return unique.sort();
+        } 
         return [];
     }
 
@@ -605,6 +637,7 @@
         updateGameDashboard(); updateCommandUI(); checkGameEnd();
     }
 
+    // มีการจำกัดการเรียกแผงโชว์ตามสถิติกระชับ 10 ตัวพอดีกับกรอบ
     function updateHistoryUI() {
         let board = document.getElementById('numHistoryBoard'), sBoard = document.getElementById('streakBoard');
         board.innerHTML = '';
@@ -689,7 +722,17 @@
     window.onload = function() { 
         updateSetupPreview(); 
         renderWallet(); 
+        setTodayDateInputs();
     };
+
+    // ตัวเสริมสำหรับเซ็ตค่าวันที่ให้สอดรับกันแต่แรกเริ่ม
+    function setTodayDateInputs() {
+        let todayISO = new Date().toISOString().split('T')[0];
+        let startInp = document.getElementById('setupPjStartDate');
+        let endIn= document.getElementById('setupPjEndDate');
+        if(startIn && !startIn.value) startIn.value = todayISO;
+        if(endIn && !endIn.value) endIn.value = todayISO;
+    }
 </script>
 </body>
 </html>
